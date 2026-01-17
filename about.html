@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于我 - 陆骏兮</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .about-hero {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .about-container {
+            padding: 4rem 0;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 3rem;
+            margin-bottom: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            .about-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .profile-sidebar {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+        }
+
+        .profile-avatar {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            border: 5px solid white;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-title {
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 1.5rem 0;
+            padding: 1.5rem 0;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .profile-contact {
+            margin-top: 1.5rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0.75rem;
+            color: var(--text-color);
+        }
+
+        /* 主内容区域 */
+        .timeline-section {
+            margin-bottom: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .section-header i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--primary-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -36px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--primary-color);
+        }
+
+        .timeline-date {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 1rem;
+            border-radius: 15px;
+            font-size: 0.875rem;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-content h3 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* 技能图表 */
+        .skills-chart {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .skill-bar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .skill-label {
+            min-width: 120px;
+            font-weight: 500;
+        }
+
+        .skill-progress-container {
+            flex: 1;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .skill-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 5px;
+            transition: width 1s ease;
+        }
+
+        .skill-percentage {
+            min-width: 40px;
+            text-align: right;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        /* 兴趣部分 */
+        .interests-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .interest-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .interest-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .interest-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        /* 证书部分 */
+        .certificates {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .certificate-item {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .certificate-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .certificate-header i {
+            color: var(--primary-color);
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <i class="fas fa-code"></i>
+                Jason Lu
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html"><i class="fas fa-home"></i> 主页</a></li>
+                <li><a href="projects.html"><i class="fas fa-project-diagram"></i> 项目</a></li>
+                <li><a href="about.html" class="active"><i class="fas fa-user"></i> 介绍</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="about-hero">
+        <div class="container">
+            <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">关于我</h1>
+            <p>了解我的背景、技能和职业历程</p>
+        </div>
+    </section>
+
+    <main class="about-container container">
+        <div class="about-content">
+            <!-- 侧边栏 -->
+            <aside class="profile-sidebar">
+                <div class="profile-card">
+                    <div class="profile-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h2 class="profile-name">陆骏兮</h2>
+                    <p class="profile-title">全栈开发者</p>
+                    <p>热爱技术，持续学习，追求卓越</p>
+                    
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">3+</span>
+                            <span>年经验</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">50+</span>
+                            <span>项目</span>
+                        </div>
+                    </div>
+
+                    <div class="profile-contact">
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>中国</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>jasonlu100@163.com</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fab fa-github"></i>
+                            <span>jasonlu100</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-globe"></i>
+                            <span>jasonlu100.github.io</span>
+                        </div>
+                    </div>
+
+                    <a href="https://github.com/jasonlu100" class="btn" style="width: 100%; margin-top: 1.5rem;">
+                        <i class="fab fa-github"></i> GitHub主页
+                    </a>
+                </div>
+            </aside>
+
+            <!-- 主内容 -->
+            <div class="main-content">
+                <!-- 个人简介 -->
+                <section class="timeline-section">
+                    <div class="section-header">
+                        <i class="fas fa-user-circle"></i>
+                        <h2>个人简介</h2>
+                    </div>
+                    <div class="card">
+                        <p>你好！我是Jason Lu，一名充满热情的全栈开发者。我对技术充满好奇心，享受将复杂问题转化为优雅解决方案的过程。</p>
+                        <p>我的开发哲学是：<strong>代码应该既高效又可读，产品应该既美观又实用</strong>。我相信持续学习是技术人最重要的品质。</p>
+                        <p>在技术之外，我热爱开源文化，喜欢在GitHub上分享我的学习成果。我也是一名技术博客作者，喜欢通过写作来整理和分享知识。</p>
+                    </div>
+                </section>
+
+                <!-- 职业经历 -->
+                <section class="timeline-section">
+                    <div class="section-header">
+                        <i class="fas fa-briefcase"></i>
+                        <h2>职业经历</h2>
+                    </div>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <span class="timeline-date">2023-至今</span>
+                            <div class="timeline-content">
+                                <h3>独立python全栈开发者</h3>
+                                <p>负责我的核心产品的开发和维护，优化系统架构，提升产品性能。</p>
+                                <ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+                                    <li>主导了我的三大引擎</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        
+                <!-- 技能详情 -->
+                <section class="timeline-section">
+                    <div class="section-header">
+                        <i class="fas fa-cogs"></i>
+                        <h2>技术技能</h2>
+                    </div>
+                    <div class="skills-chart">
+                        <div class="skill-bar">
+                            <span class="skill-label">python</span>
+                            <div class="skill-progress-container">
+                                <div class="skill-progress-bar" style="width: 100%"></div>
+                            </div>
+                            <span class="skill-percentage">100%</span>
+                        </div>
+                        </div>
+                    </div>
+                </section>
+
+                
+
+                <!-- 个人兴趣 -->
+                <section class="timeline-section">
+                    <div class="section-header">
+                        <i class="fas fa-heart"></i>
+                        <h2>个人兴趣</h2>
+                    </div>
+                    <div class="interests-grid">
+                        <div class="interest-item">
+                            <div class="interest-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <h4>技术阅读</h4>
+                            <p>关注最新技术动态</p>
+                        </div>
+                        <div class="interest-item">
+                            <div class="interest-icon">
+                                <i class="fas fa-gamepad"></i>
+                            </div>
+                            <h4>游戏开发</h4>
+                            <p>探索游戏编程</p>
+                        </div>
+                        <div class="interest-item">
+                            <div class="interest-icon">
+                                <i class="fas fa-hiking"></i>
+                            </div>
+                            <h4>徒步旅行</h4>
+                            <p>探索大自然</p>
+                        </div>
+                        <div class="interest-item">
+                            <div class="interest-icon">
+                                <i class="fas fa-music"></i>
+                            </div>
+                            <h4>音乐</h4>
+                            <p>钢琴爱好者</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>关于这个网站</h3>
+                    <p>这个网站使用纯HTML/CSS/JavaScript构建，托管在GitHub Pages上。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>网站地图</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">主页</a></li>
+                        <li><a href="projects.html">项目作品</a></li>
+                        <li><a href="about.html">个人介绍</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>更多信息</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-code"></i> 构建工具: GitHub Pages</li>
+                        <li><i class="fas fa-paint-brush"></i> 设计: 自定义响应式设计</li>
+                        <li><i class="fas fa-sync-alt"></i> 更新: 持续维护</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; <span id="current-year"></span> 陆骏兮 保留所有权利.</p>
+                <p>关于我页面 - 展示我的职业和个人历程</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        
+        // 技能条动画
+        const skillBars = document.querySelectorAll('.skill-progress-bar');
+        skillBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 500);
+        });
+        
+        // 时间线动画
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateX(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+        
+        timelineItems.forEach(item => {
+            item.style.opacity = '0';
+            item.style.transform = 'translateX(-20px)';
+            item.style.transition = 'all 0.6s ease';
+            observer.observe(item);
+        });
+    </script>
+</body>
+</html>
