@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的项目 - 陆骏兮</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .projects-hero {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .projects-container {
+            padding: 4rem 0;
+        }
+
+        .project-category {
+            margin-bottom: 4rem;
+        }
+
+        .category-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .category-title i {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-item {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+
+        .project-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .project-image {
+            height: 200px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .project-content {
+            padding: 1.5rem;
+        }
+
+        .project-title {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .tag {
+            background: var(--light-bg);
+            color: var(--primary-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .project-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .project-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 0;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <i class="fas fa-code"></i>
+                Jason Lu
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html"><i class="fas fa-home"></i> 主页</a></li>
+                <li><a href="projects.html" class="active"><i class="fas fa-project-diagram"></i> 项目</a></li>
+                <li><a href="about.html"><i class="fas fa-user"></i> 介绍</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="projects-hero">
+        <div class="container">
+            <h1 style="font-size: 2.5rem; margin-bottom: 1rem;">我的项目作品集</h1>
+            <p>展示我的技术能力和项目经验</p>
+        </div>
+    </section>
+
+    <main class="projects-container container">
+        <!-- 完整项目 -->
+        <div class="project-category">
+            <div class="category-title">
+                <i class="fas fa-star"></i>
+                <h2>完整项目</h2>
+            </div>
+            <div class="projects-grid">
+                <!-- 项目1 -->
+                <div class="project-item" id="blog">
+                    <div class="project-image">
+                        <i class="fas fa-blog"></i>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">个人博客系统</h3>
+                        <p>一个功能完整的个人博客平台，支持文章发布、分类、评论和用户管理。使用Node.js + Express + MongoDB构建。</p>
+                        <div class="project-tags">
+                            <span class="tag">Node.js</span>
+                            <span class="tag">Express</span>
+                            <span class="tag">MongoDB</span>
+                            <span class="tag">React</span>
+                        </div>
+                        <div class="project-stats">
+                            <span class="stat"><i class="fas fa-code"></i> 5000+ 行代码</span>
+                            <span class="stat"><i class="fas fa-calendar"></i> 2023年</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="btn"><i class="fas fa-external-link-alt"></i> 在线演示</a>
+                            <a href="#" class="btn btn-secondary"><i class="fab fa-github"></i> 源代码</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目2 -->
+                <div class="project-item" id="ecommerce">
+                    <div class="project-image">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">电商平台</h3>
+                        <p>基于React和Node.js的电子商务平台，包含商品展示、购物车、支付集成和订单管理功能。</p>
+                        <div class="project-tags">
+                            <span class="tag">React</span>
+                            <span class="tag">Redux</span>
+                            <span class="tag">Node.js</span>
+                            <span class="tag">PostgreSQL</span>
+                        </div>
+                        <div class="project-stats">
+                            <span class="stat"><i class="fas fa-code"></i> 8000+ 行代码</span>
+                            <span class="stat"><i class="fas fa-calendar"></i> 2023年</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="btn"><i class="fas fa-external-link-alt"></i> 在线演示</a>
+                            <a href="#" class="btn btn-secondary"><i class="fab fa-github"></i> 源代码</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目3 -->
+                <div class="project-item" id="taskapp">
+                    <div class="project-image">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">任务管理应用</h3>
+                        <p>使用Vue.js和Firebase构建的实时协作任务管理工具，支持团队协作、实时更新和文件上传。</p>
+                        <div class="project-tags">
+                            <span class="tag">Vue.js</span>
+                            <span class="tag">Firebase</span>
+                            <span class="tag">Vuex</span>
+                            <span class="tag">Vuetify</span>
+                        </div>
+                        <div class="project-stats">
+                            <span class="stat"><i class="fas fa-code"></i> 4000+ 行代码</span>
+                            <span class="stat"><i class="fas fa-calendar"></i> 2023年</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="btn"><i class="fas fa-external-link-alt"></i> 在线演示</a>
+                            <a href="#" class="btn btn-secondary"><i class="fab fa-github"></i> 源代码</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 学习项目 -->
+        <div class="project-category">
+            <div class="category-title">
+                <i class="fas fa-graduation-cap"></i>
+                <h2>学习项目</h2>
+            </div>
+            <div class="projects-grid">
+                <!-- 学习项目1 -->
+                <div class="project-item">
+                    <div class="project-image">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">天气查询应用</h3>
+                        <p>使用第三方API开发的天气查询应用，展示天气数据和未来预报。</p>
+                        <div class="project-tags">
+                            <span class="tag">JavaScript</span>
+                            <span class="tag">API</span>
+                            <span class="tag">CSS3</span>
+                        </div>
+                        <div class="project-stats">
+                            <span class="stat"><i class="fas fa-code"></i> 1500+ 行代码</span>
+                            <span class="stat"><i class="fas fa-calendar"></i> 2023年</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="btn"><i class="fas fa-external-link-alt"></i> 在线演示</a>
+                            <a href="#" class="btn btn-secondary"><i class="fab fa-github"></i> 源代码</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 学习项目2 -->
+                <div class="project-item">
+                    <div class="project-image">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">JavaScript小游戏</h3>
+                        <p>使用原生JavaScript开发的几个经典小游戏，包括贪吃蛇和俄罗斯方块。</p>
+                        <div class="project-tags">
+                            <span class="tag">JavaScript</span>
+                            <span class="tag">Canvas</span>
+                            <span class="tag">HTML5</span>
+                        </div>
+                        <div class="project-stats">
+                            <span class="stat"><i class="fas fa-code"></i> 2000+ 行代码</span>
+                            <span class="stat"><i class="fas fa-calendar"></i> 2023年</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="btn"><i class="fas fa-external-link-alt"></i> 在线演示</a>
+                            <a href="#" class="btn btn-secondary"><i class="fab fa-github"></i> 源代码</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 学习项目3 -->
+                <div class="project-item">
+                    <div class="project-image">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">数据可视化仪表板</h3>
+                        <p>使用Chart.js和D3.js创建的数据可视化仪表板，展示各种图表类型。</p>
+                        <div class="project-tags">
+                            <span class="tag">D3.js</span>
+                            <span class="tag">Chart.js</span>
+                            <span class="tag">数据可视化</span>
+                        </div>
+                        <div class="project-stats">
+                            <span class="stat"><i class="fas fa-code"></i> 3000+ 行代码</span>
+                            <span class="stat"><i class="fas fa-calendar"></i> 2023年</span>
+                        </div>
+                        <div class="project-links">
+                            <a href="#" class="btn"><i class="fas fa-external-link-alt"></i> 在线演示</a>
+                            <a href="#" class="btn btn-secondary"><i class="fab fa-github"></i> 源代码</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 即将开始 -->
+        <div class="project-category">
+            <div class="category-title">
+                <i class="fas fa-lightbulb"></i>
+                <h2>计划中的项目</h2>
+            </div>
+            <div class="projects-grid">
+                <div class="project-item">
+                    <div class="project-image">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">AI助手应用</h3>
+                        <p>集成AI功能的智能助手应用，计划使用OpenAI API和React开发。</p>
+                        <div class="project-tags">
+                            <span class="tag">AI</span>
+                            <span class="tag">React</span>
+                            <span class="tag">OpenAI</span>
+                            <span class="tag">计划中</span>
+                        </div>
+                        <div class="project-links">
+                            <button class="btn" disabled><i class="fas fa-clock"></i> 准备中</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-item">
+                    <div class="project-image">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="project-content">
+                        <h3 class="project-title">移动端应用</h3>
+                        <p>使用React Native开发的跨平台移动应用，正在规划功能模块。</p>
+                        <div class="project-tags">
+                            <span class="tag">React Native</span>
+                            <span class="tag">移动端</span>
+                            <span class="tag">跨平台</span>
+                            <span class="tag">计划中</span>
+                        </div>
+                        <div class="project-links">
+                            <button class="btn" disabled><i class="fas fa-clock"></i> 准备中</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>项目相关</h3>
+                    <p>如需了解更多项目细节或合作机会，请随时联系我。</p>
+                </div>
+                <div class="footer-section">
+                    <h3>技术栈</h3>
+                    <ul class="footer-links">
+                        <li>Python</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>联系方式</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> jasonlu100@163.com</li>
+                        <li><i class="fab fa-github"></i> github.com/jasonlu100</li>
+                        <li><i class="fas fa-globe"></i> jasonlu100.github.io</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; <span id="current-year"></span> 陆骏兮 保留所有权利.</p>
+                <p>项目页面 - 展示我的开发成果</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        
+        // 项目卡片动画
+        const projectItems = document.querySelectorAll('.project-item');
+        projectItems.forEach(item => {
+            item.addEventListener('mouseenter', () => {
+                item.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25)';
+            });
+            item.addEventListener('mouseleave', () => {
+                item.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+            });
+        });
+    </script>
+</body>
+</html>
