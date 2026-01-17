@@ -1,1 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陆骏兮 - 个人主页</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* 主页特有样式 */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid white;
+            margin: 0 auto 2rem;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: white;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero .tagline {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        /* 技能部分 */
+        .skills-section {
+            padding: 4rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .skill-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .skill-card:hover {
+            transform: translateX(10px);
+        }
+
+        .skill-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        .skill-card i {
+            font-size: 1.5rem;
+        }
+
+        .skill-level {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+
+        .skill-progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 4px;
+        }
+
+        /* 特性部分 */
+        .features-section {
+            padding: 4rem 0;
+            background: white;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+        }
+
+        /* 最新项目预览 */
+        .projects-preview {
+            padding: 4rem 0;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .project-card {
+            position: relative;
+            overflow: hidden;
+            border-radius: 12px;
+            height: 300px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        }
+
+        .project-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1.5rem;
+            transform: translateY(100%);
+            transition: var(--transition);
+        }
+
+        .project-card:hover .project-overlay {
+            transform: translateY(0);
+        }
+
+        .project-title {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        /* 联系部分 */
+        .contact-section {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            text-align: center;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .social-link {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 1.25rem;
+            transition: var(--transition);
+        }
+
+        .social-link:hover {
+            transform: translateY(-5px);
+            background: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo">
+                <i class="fas fa-code"></i>
+                Jason Lu
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="active"><i class="fas fa-home"></i> 主页</a></li>
+                <li><a href="projects.html"><i class="fas fa-project-diagram"></i> 项目</a></li>
+                <li><a href="about.html"><i class="fas fa-user"></i> 介绍</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- 英雄区域 -->
+    <section class="hero">
+        <div class="container hero-content">
+            <div class="avatar">
+                <div class="avatar-placeholder">
+                    <i class="fas fa-user"></i>
+                </div>
+            </div>
+            <h1>Jason Lu</h1>
+            <p class="tagline">python开发者 | 技术爱好者</p>
+            <p>专注于创造优秀的数字体验，热爱学习新技术</p>
+            <div class="hero-buttons">
+                <a href="projects.html" class="btn">
+                    <i class="fas fa-eye"></i> 查看项目
+                </a>
+                <a href="about.html" class="btn btn-secondary">
+                    <i class="fas fa-info-circle"></i> 了解更多
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 技能部分 -->
+    <section class="skills-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>技术栈</h2>
+                <p>我的核心技能和专业领域</p>
+            </div>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <h3><i class="fab fa-html5"></i> python全栈技术开发</h3>
+                    <p>python的所有功能的库</p>
+                    <div class="skill-level">
+                        <div class="skill-progress" style="width: 90%"></div>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <h3><i class="fas fa-server"></i> 我也在尝试学习其它语言</h3>
+                    <p>c++, unity</p>
+                    <div class="skill-level">
+                        <div class="skill-progress" style="width: 85%"></div>
+                    </div>
+                </div>
+                <div class="skill-card">
+                    <h3><i class="fab fa-git-alt"></i> 开发工具</h3>
+                    <p>Git, GitHub, Docker, VS Code, 敏捷开发</p>
+                    <div class="skill-level">
+                        <div class="skill-progress" style="width: 95%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 特性部分 -->
+    <section class="features-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>我能做什么</h2>
+                <p>为您提供全方位的技术支持</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h3>python开发</h3>
+                    <p>构建出独一无二的应用（设计师不行除外😊）</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>移动端适配</h3>
+                    <p>确保在所有设备上都有最佳体验</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>性能优化</h3>
+                    <p>提升应用加载速度和用户体验</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 最新项目预览 -->
+    <section class="projects-preview">
+        <div class="container">
+            <div class="section-title">
+                <h2>精选项目</h2>
+                <p>探索我的最新作品</p>
+            </div>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-overlay">
+                        <h3 class="project-title">个人博客系统</h3>
+                        <p>基于Node.js的全功能博客平台</p>
+                        <a href="projects.html#blog" class="btn" style="margin-top: 1rem;">查看详情</a>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-overlay">
+                        <h3 class="project-title">电商平台</h3>
+                        <p>React + Node.js构建的在线商店</p>
+                        <a href="projects.html#ecommerce" class="btn" style="margin-top: 1rem;">查看详情</a>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-overlay">
+                        <h3 class="project-title">任务管理应用</h3>
+                        <p>Vue.js + Firebase实时协作应用</p>
+                        <a href="projects.html#taskapp" class="btn" style="margin-top: 1rem;">查看详情</a>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="projects.html" class="btn">
+                    <i class="fas fa-arrow-right"></i> 查看所有项目
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 联系部分 -->
+    <section class="contact-section">
+        <div class="container">
+            <div class="section-title">
+                <h2>联系我</h2>
+                <p>有项目想法？让我们一起实现它！</p>
+            </div>
+            <div class="social-links">
+                <a href="https://github.com/jasonlu100" class="social-link" target="_blank">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="mailto:your-email@example.com" class="social-link">
+                    <i class="fas fa-envelope"></i>
+                </a>
+                <a href="https://jasonlu100.github.io" class="social-link">
+                    <i class="fas fa-globe"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Jason Lu</h3>
+                    <p>专注于创造优秀的数字体验，热爱学习新技术</p>
+                </div>
+                <div class="footer-section">
+                    <h3>快速链接</h3>
+                    <ul class="footer-links">
+                        <li><a href="index.html">主页</a></li>
+                        <li><a href="projects.html">项目</a></li>
+                        <li><a href="about.html">关于我</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>联系信息</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> jasonlu100@163.com</li>
+                        <li><i class="fab fa-github"></i> github.com/jasonlu100</li>
+                        <li><i class="fas fa-globe"></i> jasonlu100.github.io</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; <span id="current-year"></span> 陆骏兮 保留所有权利.</p>
+                <p>由 GitHub Pages 提供支持</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 更新年份
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+        
+        // 导航栏滚动效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 100) {
+                navbar.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+            } else {
+                navbar.style.boxShadow = 'none';
+            }
+        });
+        
+        // 技能卡片动画
+        const skillCards = document.querySelectorAll('.skill-card');
+        skillCards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateX(10px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateX(0)';
+            });
+        });
+    </script>
+</body>
+</html>
 
