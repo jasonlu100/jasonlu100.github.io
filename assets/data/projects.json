@@ -1,0 +1,41 @@
+{
+  "password": "admin123",  // 默认密码，可以修改
+  "projects": [
+    {
+      "id": 1,
+      "title": "个人博客系统",
+      "description": "基于Node.js的全功能博客平台",
+      "category": "完整项目",
+      "tags": ["Node.js", "Express", "MongoDB", "React"],
+      "githubUrl": "https://github.com/jasonlu100/blog-system",
+      "demoUrl": "https://blog.jasonlu100.com",
+      "status": "completed",
+      "date": "2023-10-15",
+      "featured": true
+    },
+    {
+      "id": 2,
+      "title": "电商平台",
+      "description": "React + Node.js构建的在线商店",
+      "category": "完整项目",
+      "tags": ["React", "Redux", "Node.js", "PostgreSQL"],
+      "githubUrl": "https://github.com/jasonlu100/ecommerce",
+      "demoUrl": "https://shop.jasonlu100.com",
+      "status": "completed",
+      "date": "2023-08-20",
+      "featured": true
+    },
+    {
+      "id": 3,
+      "title": "任务管理应用",
+      "description": "Vue.js + Firebase实时协作应用",
+      "category": "完整项目",
+      "tags": ["Vue.js", "Firebase", "Vuex", "Vuetify"],
+      "githubUrl": "https://github.com/jasonlu100/task-manager",
+      "demoUrl": "https://tasks.jasonlu100.com",
+      "status": "completed",
+      "date": "2023-11-05",
+      "featured": true
+    }
+  ]
+}
