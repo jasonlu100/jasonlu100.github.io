@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目占位页面 | GitHub Pages</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+        }
+        
+        .logo {
+            font-size: 48px;
+            color: #6a11cb;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .content {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 30px 0;
+            border-left: 5px solid #6a11cb;
+            text-align: left;
+        }
+        
+        .content h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .content p {
+            color: #555;
+            line-height: 1.7;
+            margin-bottom: 15px;
+        }
+        
+        .status-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e8f4fc;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        
+        .status-icon {
+            background-color: #6a11cb;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .status-text {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 25px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn i {
+            margin-right: 8px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-secondary {
+            background-color: #f8f9fa;
+            color: #6a11cb;
+            border: 2px solid #6a11cb;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #6a11cb;
+            color: white;
+        }
+        
+        .info-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            margin-top: 40px;
+            gap: 20px;
+        }
+        
+        .info-card {
+            flex: 1;
+            min-width: 200px;
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-top: 3px solid #2575fc;
+        }
+        
+        .info-card h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .info-card p {
+            color: #7f8c8d;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .info-card i {
+            color: #6a11cb;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        footer {
+            margin-top: 40px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        
+        .github-link {
+            color: #6a11cb;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .github-link:hover {
+            text-decoration: underline;
+        }
+        
+        .counter {
+            margin-top: 15px;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <i class="fas fa-code-branch"></i>
+        </div>
+        
+        <h1>项目占位页面</h1>
+        <p class="subtitle">这个页面是一个占位符，用于表明此GitHub Pages目录正在建设中或预留为将来使用。</p>
+        
+        <div class="status-box">
+            <div class="status-icon">
+                <i class="fas fa-tools"></i>
+            </div>
+            <div class="status-text">此页面当前处于占位状态 - 项目内容即将上线</div>
+        </div>
+        
+        <div class="content">
+            <h2>关于此占位页面</h2>
+            <p>GitHub Pages要求每个发布的仓库必须至少包含一个有效文件（通常是index.html）。此页面作为占位符，确保目录不会显示为空的，同时为您提供专业的临时展示。</p>
+            <p>您可以随时用自己的内容替换此页面。在准备就绪之前，此页面将作为临时展示，让访问者了解此目录的用途。</p>
+            <p>如果您是项目所有者，可以将此页面替换为您的内容，或者按照您的需求进行修改。此页面包含响应式设计，在所有设备上都能良好显示。</p>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="https://github.com" class="btn btn-primary" target="_blank">
+                <i class="fab fa-github"></i> 访问GitHub
+            </a>
+            <a href="https://pages.github.com" class="btn btn-secondary" target="_blank">
+                <i class="fas fa-book"></i> GitHub Pages文档
+            </a>
+        </div>
+        
+        <div class="info-section">
+            <div class="info-card">
+                <i class="fas fa-info-circle"></i>
+                <h3>为什么需要占位页面？</h3>
+                <p>GitHub Pages不能发布空文件夹。占位页面确保您的仓库可以正确部署，同时为访问者提供有用的信息。</p>
+            </div>
+            
+            <div class="info-card">
+                <i class="fas fa-calendar-alt"></i>
+                <h3>预计上线时间</h3>
+                <p>项目内容正在积极开发中。请定期回访查看更新，或联系项目所有者获取更多信息。</p>
+            </div>
+            
+            <div class="info-card">
+                <i class="fas fa-cogs"></i>
+                <h3>技术细节</h3>
+                <p>此页面使用纯HTML/CSS构建，包含响应式设计，无需任何外部依赖即可正常工作。</p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>此页面由GitHub Pages托管 | 最后更新：<span id="currentDate"></span></p>
+            <p>访问 <a href="https://github.com" class="github-link" target="_blank">GitHub</a> 了解更多关于版本控制和静态网站托管的信息。</p>
+            <div class="counter">
+                <p>占位页面访问次数: <span id="visitCount">1</span></p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 设置当前日期
+        const now = new Date();
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = now.toLocaleDateString('zh-CN', options);
+        
+        // 简单的访问计数器（使用localStorage）
+        if (typeof(Storage) !== "undefined") {
+            let visitCount = localStorage.getItem('pageVisitCount');
+            if (visitCount) {
+                visitCount = parseInt(visitCount) + 1;
+            } else {
+                visitCount = 1;
+            }
+            localStorage.setItem('pageVisitCount', visitCount);
+            document.getElementById('visitCount').textContent = visitCount;
+        }
+        
+        // 添加页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.container');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                container.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>
