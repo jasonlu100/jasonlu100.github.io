@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, touch-action: manipulation">
+  <title>Turbo Flight Simulator - 机炮空战 v4.0</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      background: #000;
+      touch-action: none;
+    }
+    #hud {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      color: #00ff88;
+      font-size: 11px;
+      text-shadow: 1px 1px 2px #000;
+      pointer-events: none;
+      background: rgba(0,0,0,0.6);
+      padding: 10px 14px;
+      border-radius: 10px;
+      line-height: 1.7;
+      border: 1px solid rgba(0,255,136,0.3);
+      backdrop-filter: blur(6px);
+      font-family: 'Courier New', monospace;
+    }
+    #hud span { color: #ffffff; font-weight: bold; }
+    #weapon-panel {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      color: #ff8800;
+      font-size: 16px;
+      font-weight: bold;
+      background: rgba(0,0,0,0.65);
+      padding: 8px 15px;
+      border-radius: 20px;
+      text-shadow: 2px 2px 0 #000;
+      pointer-events: none;
+      border: 1px solid rgba(255,136,0,0.4);
+      backdrop-filter: blur(6px);
+      line-height: 1.5;
+    }
+    #score-panel {
+      position: absolute;
+      top: 80px;
+      right: 15px;
+      color: #ffffff;
+      font-size: 16px;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 15px;
+      border-radius: 20px;
+      pointer-events: none;
+      backdrop-filter: blur(6px);
+    }
+    #enemy-counter {
+      position: absolute;
+      top: 120px;
+      right: 15px;
+      color: #ff4444;
+      font-size: 14px;
+      background: rgba(0,0,0,0.6);
+      padding: 5px 15px;
+      border-radius: 15px;
+      pointer-events: none;
+      backdrop-filter: blur(6px);
+    }
+    #crosshair {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      pointer-events: none;
+      z-index: 100;
+    }
+    #lock-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50px;
+      height: 50px;
+      pointer-events: none;
+      z-index: 99;
+      display: none;
+    }
+    #lock-box.active {
+      display: block;
+      animation: lockPulse 0.3s infinite alternate;
+    }
+    @keyframes lockPulse {
+      from { opacity: 0.6; }
+      to { opacity: 1; }
+    }
+    #mobile-controls {
+      position: absolute;
+      bottom: 25px;
+      right: 20px;
+      display: flex;
+      gap: 8px;
+      pointer-events: auto;
+      z-index: 200;
+      flex-wrap: wrap;
+      max-width: 220px;
+    }
+    .mobile-btn {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.12);
+      border: 2px solid rgba(255,255,255,0.5);
+      color: white;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      backdrop-filter: blur(8px);
+      user-select: none;
+      touch-action: manipulation;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mobile-btn:active {
+      background: rgba(255,255,255,0.35);
+      transform: scale(0.9);
+    }
+    #instructions {
+      position: absolute;
+      bottom: 25px;
+      left: 25px;
+      color: rgba(255,255,255,0.55);
+      font-size: 9px;
+      background: rgba(0,0,0,0.5);
+      padding: 6px 10px;
+      border-radius: 8px;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+      font-family: 'Courier New', monospace;
+    }
+    @media (max-width: 700px) {
+      #hud { font-size: 9px; padding: 8px; }
+      .mobile-btn { width: 40px; height: 40px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <div>速度 <span id="speed">150</span>kt | 高度 <span id="alt">350</span>ft</div>
+    <div>航向 <span id="hdg">000</span>° | V/S <span id="vs">0</span>fpm</div>
+    <div>油门 <span id="thr">70</span>% | 燃料 <span id="fuel">∞</span></div>
+    <div>G: <span id="gforce">1.0</span> | 襟翼:<span id="flaps">收</span> 起落架:<span id="gear">收</span></div>
+    <div style="color:#ffaa00;">🔒锁定: <span id="lock-target">无</span></div>
+  </div>
+  <div id="weapon-panel">
+    <div>🔫 机炮: <span id="ammo-count">∞</span></div>
+    <div>🚀 导弹: <span id="missile-count">∞</span></div>
+  </div>
+  <div id="score-panel">🎯 得分: <span id="score">0</span></div>
+  <div id="enemy-counter">✈️ 敌机: <span id="enemy-count">12</span></div>
+  <div id="lock-box">
+    <svg width="50" height="50" viewBox="0 0 50 50">
+      <rect x="10" y="10" width="30" height="30" fill="none" stroke="#ff4444" stroke-width="2.5" rx="5"/>
+      <circle cx="25" cy="25" r="8" fill="none" stroke="#ff4444" stroke-width="2"/>
+    </svg>
+  </div>
+  <div id="crosshair">
+    <svg width="40" height="40" viewBox="0 0 40 40">
+      <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+      <line x1="20" y1="0" x2="20" y2="40" stroke="rgba(255,255,255,0.9)" stroke-width="1.5"/>
+      <line x1="0" y1="20" x2="40" y2="20" stroke="rgba(255,255,255,0.9)" stroke-width="1.5"/>
+      <circle cx="20" cy="20" r="4" fill="rgba(255,100,0,0.8)"/>
+    </svg>
+  </div>
+  <div id="mobile-controls">
+    <div class="mobile-btn" id="btn-gun">🔫</div>
+    <div class="mobile-btn" id="btn-missile">🚀</div>
+    <div class="mobile-btn" id="btn-lock">🎯</div>
+    <div class="mobile-btn" id="btn-gear">⚙️</div>
+    <div class="mobile-btn" id="btn-flaps">🛬</div>
+    <div class="mobile-btn" id="btn-camera">📷</div>
+  </div>
+  <div id="instructions">
+    W/S:俯仰 A/D:滚转 Q/E:偏航 Shift/Ctrl:油门 空格:加力<br>
+    鼠标左键/J:机炮 | M:导弹 | L:锁定 | F:襟翼 | G:起落架 | C:视角 | R:重置
+  </div>
+
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js" } }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    // ==================== 场景 ====================
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87CEEB);
+    scene.fog = new THREE.Fog(0x87CEEB, 1500, 6000);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 8000);
+    camera.position.set(0, 300, 500);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    document.body.appendChild(renderer.domElement);
+
+    const ambient = new THREE.AmbientLight(0x556677);
+    scene.add(ambient);
+    const sun = new THREE.DirectionalLight(0xfff8e7, 1.2);
+    sun.position.set(800, 1200, 500);
+    sun.castShadow = true;
+    sun.shadow.mapSize.width = 2048;
+    sun.shadow.mapSize.height = 2048;
+    sun.shadow.camera.near = 5;
+    sun.shadow.camera.far = 6000;
+    sun.shadow.camera.left = -2000;
+    sun.shadow.camera.right = 2000;
+    sun.shadow.camera.top = 2000;
+    sun.shadow.camera.bottom = -2000;
+    scene.add(sun);
+    scene.add(new THREE.HemisphereLight(0x87ceeb, 0x443322, 0.4));
+
+    // ==================== 大地图平滑地形 ====================
+    const worldSize = 5000;
+    const segments = 300;
+
+    function getTerrainHeight(x, z) {
+      const nx = x / worldSize;
+      const nz = z / worldSize;
+      let h = 25;
+      
+      // 大型地貌
+      h += Math.sin(nx * Math.PI * 1.8) * Math.cos(nz * Math.PI * 1.5) * 200;
+      h += Math.cos(nx * Math.PI * 1.2 + 1.0) * Math.sin(nz * Math.PI * 1.7) * 180;
+      
+      // 中型丘陵
+      h += Math.sin(nx * Math.PI * 3.5) * Math.cos(nz * Math.PI * 3.0) * 80;
+      h += Math.cos(nx * Math.PI * 2.8 + 0.5) * Math.sin(nz * Math.PI * 3.8) * 70;
+      h += Math.sin(nx * Math.PI * 4.5 + nz * Math.PI * 2.5) * 50;
+      
+      // 小型起伏
+      h += Math.sin(nx * Math.PI * 7.0) * Math.cos(nz * Math.PI * 6.5) * 25;
+      h += Math.cos(nx * Math.PI * 8.0 + 0.3) * Math.sin(nz * Math.PI * 7.5) * 20;
+      
+      // 微地形
+      h += Math.sin(nx * Math.PI * 15.0) * Math.cos(nz * Math.PI * 13.0) * 8;
+      h += Math.cos(nx * Math.PI * 16.0) * Math.sin(nz * Math.PI * 17.0) * 6;
+      
+      // 山脉
+      const peaks = [
+        { cx: -0.25, cz: -0.15, h: 350, r: 0.2 },
+        { cx: 0.35, cz: 0.1, h: 400, r: 0.18 },
+        { cx: 0.05, cz: -0.3, h: 300, r: 0.22 },
+        { cx: -0.3, cz: 0.3, h: 320, r: 0.2 },
+        { cx: 0.4, cz: -0.25, h: 380, r: 0.16 },
+        { cx: 0.15, cz: 0.35, h: 280, r: 0.24 },
+        { cx: -0.4, cz: -0.05, h: 360, r: 0.19 },
+        { cx: 0.25, cz: -0.2, h: 340, r: 0.21 },
+      ];
+      
+      for (const peak of peaks) {
+        const dx = (nx - peak.cx) / peak.r;
+        const dz = (nz - peak.cz) / peak.r;
+        const dist = Math.sqrt(dx*dx + dz*dz);
+        if (dist < 2.0) {
+          h += peak.h * Math.exp(-dist * dist * 2.5);
+        }
+      }
+      
+      // 高原
+      const plateau = Math.sin(nx * Math.PI * 1.0) * Math.cos(nz * Math.PI * 1.2);
+      if (plateau > 0.65) h += (plateau - 0.65) * 300;
+      
+      // 平原区域
+      const flat = Math.cos(nx * Math.PI * 2.5) * Math.sin(nz * Math.PI * 2.0);
+      if (Math.abs(flat) > 0.75) h = h * 0.1 + 28;
+      
+      return Math.max(10, h);
+    }
+
+    const terrainGeo = new THREE.PlaneGeometry(worldSize, worldSize, segments, segments);
+    terrainGeo.rotateX(-Math.PI/2);
+    const posArray = terrainGeo.attributes.position.array;
+    const colors = [];
+
+    for (let i = 0; i < posArray.length; i += 3) {
+      const x = posArray[i], z = posArray[i+2];
+      const h = getTerrainHeight(x, z);
+      posArray[i+1] = h;
+      let r, g, b;
+      if (h < 15) { r=0.2; g=0.45; b=0.55; }
+      else if (h < 40) { r=0.3; g=0.55; b=0.25; }
+      else if (h < 80) { r=0.4; g=0.55; b=0.2; }
+      else if (h < 140) { r=0.5; g=0.5; b=0.3; }
+      else if (h < 220) { r=0.55; g=0.48; b=0.38; }
+      else if (h < 320) { r=0.65; g=0.58; b=0.48; }
+      else { r=0.8; g=0.75; b=0.7; }
+      colors.push(r, g, b);
+    }
+    
+    terrainGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    terrainGeo.computeVertexNormals();
+    const terrain = new THREE.Mesh(terrainGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.75, metalness: 0.05 }));
+    terrain.receiveShadow = true; terrain.castShadow = true;
+    scene.add(terrain);
+
+    const water = new THREE.Mesh(
+      new THREE.PlaneGeometry(worldSize*1.5, worldSize*1.5).rotateX(-Math.PI/2),
+      new THREE.MeshStandardMaterial({ color: 0x1a5588, roughness: 0.15, metalness: 0.8, transparent: true, opacity: 0.78 })
+    );
+    water.position.y = 12; water.receiveShadow = true;
+    scene.add(water);
+
+    // ==================== 机场 ====================
+    const airports = [];
+    function createAirport(x, z, rot = 0) {
+      const gh = getTerrainHeight(x, z);
+      const y = gh + 0.3;
+      const g = new THREE.Group();
+      g.position.set(x, y, z);
+      g.rotation.y = rot;
+      const rw = new THREE.Mesh(new THREE.PlaneGeometry(250, 45).rotateX(-Math.PI/2), new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.85 }));
+      rw.position.y = 0.05; rw.receiveShadow = true; g.add(rw);
+      const cl = new THREE.Mesh(new THREE.PlaneGeometry(230, 2).rotateX(-Math.PI/2), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 }));
+      cl.position.y = 0.08; g.add(cl);
+      const ap = new THREE.Mesh(new THREE.CircleGeometry(50, 32).rotateX(-Math.PI/2), new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 0.85 }));
+      ap.position.set(35, 0.03, 35); ap.receiveShadow = true; g.add(ap);
+      const tm = new THREE.Mesh(new THREE.BoxGeometry(35, 10, 16), new THREE.MeshStandardMaterial({ color: 0x8899aa }));
+      tm.position.set(35, 5.2, 18); tm.castShadow = true; tm.receiveShadow = true; g.add(tm);
+      const tb = new THREE.Mesh(new THREE.CylinderGeometry(3, 4, 14, 8), new THREE.MeshStandardMaterial({ color: 0xcccccc }));
+      tb.position.set(-25, 7.2, 18); tb.castShadow = true; g.add(tb);
+      const tt = new THREE.Mesh(new THREE.CylinderGeometry(5, 3, 5, 8), new THREE.MeshStandardMaterial({ color: 0x99aabb }));
+      tt.position.set(-25, 16.5, 18); tt.castShadow = true; g.add(tt);
+      for (let i = 0; i < 3; i++) {
+        const hg = new THREE.Mesh(new THREE.BoxGeometry(22, 12, 18), new THREE.MeshStandardMaterial({ color: 0x778899 }));
+        hg.position.set(-25+i*28, 6.2, 32); hg.castShadow = true; hg.receiveShadow = true; g.add(hg);
+      }
+      const lights = [];
+      for (let i = 0; i < 12; i++) {
+        const lg = new THREE.SphereGeometry(0.6, 8);
+        const l = new THREE.Mesh(lg, new THREE.MeshBasicMaterial({ color: i%3===0?0xff4400:(i%3===1?0xffffff:0x44ff44) }));
+        l.position.set(0, 0.7, -135+i*23); g.add(l); lights.push(l);
+      }
+      scene.add(g);
+      return { group: g, center: new THREE.Vector3(x, y, z), radius: 90, lights };
+    }
+
+    airports.push(createAirport(0, 600, 0));
+    airports.push(createAirport(-800, -400, 0.4));
+    airports.push(createAirport(700, -350, -0.3));
+    airports.push(createAirport(-300, 900, 0.15));
+    airports.push(createAirport(900, 500, 0.7));
+    airports.push(createAirport(-700, 300, -0.5));
+
+    // ==================== 地面目标 ====================
+    const targets = [];
+    for (let i = 0; i < 80; i++) {
+      let tx = (Math.random()-0.5)*4500, tz = (Math.random()-0.5)*4000+400;
+      let tooClose = false;
+      for (const ap of airports) {
+        if (Math.sqrt((tx-ap.center.x)**2+(tz-ap.center.z)**2) < ap.radius+80) { tooClose=true; break; }
+      }
+      if (tooClose) continue;
+      const th = getTerrainHeight(tx, tz);
+      if (th > 25 && th < 250) {
+        const type = Math.random()<0.5?'tank':'truck';
+        const target = createTarget(type);
+        target.position.set(tx, th, tz);
+        target.rotation.y = Math.random()*Math.PI*2;
+        scene.add(target);
+        targets.push({ mesh: target, type, destroyed: false, position: new THREE.Vector3(tx, th, tz) });
+      }
+    }
+
+    function createTarget(type) {
+      const g = new THREE.Group();
+      if (type==='tank') {
+        g.add(new THREE.Mesh(new THREE.BoxGeometry(4,2,6), new THREE.MeshStandardMaterial({ color:0x4a5a3a, roughness:0.7 })).translateY(2));
+        g.add(new THREE.Mesh(new THREE.CylinderGeometry(1.3,1.5,2.5,8), new THREE.MeshStandardMaterial({ color:0x3a4a2a })).translateY(3.8));
+        const b = new THREE.Mesh(new THREE.CylinderGeometry(0.25,0.3,3.5,6), new THREE.MeshStandardMaterial({ color:0x2a2a2a }));
+        b.rotation.x=Math.PI/2; b.position.set(0,4.2,2.2); g.add(b);
+      } else {
+        g.add(new THREE.Mesh(new THREE.BoxGeometry(3.5,3,5), new THREE.MeshStandardMaterial({ color:0x5a6a4a })).translateY(2.5));
+        g.add(new THREE.Mesh(new THREE.BoxGeometry(4,2.5,6), new THREE.MeshStandardMaterial({ color:0x6a7a5a })).translateY(1.8).translateZ(-3.5));
+        for (let i=-1;i<=1;i+=2) for (let j=-1;j<=1;j+=2) {
+          const w = new THREE.Mesh(new THREE.CylinderGeometry(0.6,0.6,0.5,8), new THREE.MeshStandardMaterial({ color:0x111111 }));
+          w.rotation.z=Math.PI/2; w.position.set(i*1.8,0.6,j*2.5); g.add(w);
+        }
+      }
+      g.children.forEach(c => { c.castShadow = true; c.receiveShadow = true; });
+      return g;
+    }
+
+    // ==================== 玩家飞机 ====================
+    const aircraft = new THREE.Group();
+    
+    const parts = {
+      fuselage: new THREE.Mesh(new THREE.CylinderGeometry(1.4,1.7,15,8).rotateX(Math.PI/2), new THREE.MeshStandardMaterial({ color:0xd0d0d0, metalness:0.6, roughness:0.3 })),
+      nose: new THREE.Mesh(new THREE.ConeGeometry(1.4,4.5,8).rotateX(Math.PI/2), new THREE.MeshStandardMaterial({ color:0xe0e0e0, metalness:0.5 })),
+      cockpit: new THREE.Mesh(new THREE.SphereGeometry(1.2,8,4), new THREE.MeshStandardMaterial({ color:0x333366, metalness:0.8 })),
+      wing: new THREE.Mesh(new THREE.BoxGeometry(20,0.7,4), new THREE.MeshStandardMaterial({ color:0xbbbbbb, metalness:0.4 })),
+      tailWing: new THREE.Mesh(new THREE.BoxGeometry(8,0.6,2.5), new THREE.MeshStandardMaterial({ color:0xaaaaaa })),
+      fin: new THREE.Mesh(new THREE.BoxGeometry(0.7,4.5,3.5), new THREE.MeshStandardMaterial({ color:0x999999 })),
+      engine: new THREE.Mesh(new THREE.CylinderGeometry(1.0,1.1,5.5,8).rotateX(Math.PI/2), new THREE.MeshStandardMaterial({ color:0x555555, metalness:0.8 })),
+    };
+    
+    parts.fuselage.castShadow = true; aircraft.add(parts.fuselage);
+    parts.nose.position.z = 9.5; parts.nose.castShadow = true; aircraft.add(parts.nose);
+    parts.cockpit.position.set(0,0.9,2.5); parts.cockpit.scale.set(1,0.7,1.3); parts.cockpit.castShadow = true; aircraft.add(parts.cockpit);
+    parts.wing.position.set(0,-0.3,-0.3); parts.wing.castShadow = true; aircraft.add(parts.wing);
+    parts.tailWing.position.set(0,0.4,-5.5); parts.tailWing.castShadow = true; aircraft.add(parts.tailWing);
+    parts.fin.position.set(0,2.8,-6); parts.fin.castShadow = true; aircraft.add(parts.fin);
+    parts.engine.position.z = -5.5; parts.engine.castShadow = true; aircraft.add(parts.engine);
+    
+    // 起落架
+    const gearGroup = new THREE.Group();
+    const gearMat = new THREE.MeshStandardMaterial({ color:0x444444, metalness:0.9, roughness:0.3 });
+    const wheelMat = new THREE.MeshStandardMaterial({ color:0x111111, roughness:0.8 });
+    
+    function addGear(x, y, z, h) {
+      const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.18,0.18,h,8), gearMat);
+      strut.position.set(x, y-h/2, z); strut.castShadow = true; gearGroup.add(strut);
+      const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.5,0.5,0.35,8), wheelMat);
+      wheel.rotation.x = Math.PI/2; wheel.position.set(x, y-h, z); wheel.castShadow = true; gearGroup.add(wheel);
+    }
+    
+    addGear(0, -0.3, 3.5, 3);
+    addGear(-2.8, -0.4, -0.3, 3.2);
+    addGear(2.8, -0.4, -0.3, 3.2);
+    
+    aircraft.add(gearGroup);
+    aircraft.position.set(0, 400, 400);
+    aircraft.castShadow = true; aircraft.receiveShadow = true;
+    scene.add(aircraft);
+
+    // ==================== 敌机（有机枪） ====================
+    const enemies = [];
+    const crashingEnemies = [];
+    const enemyBullets = [];
+    
+    function createEnemyAircraft(x, y, z) {
+      const enemy = new THREE.Group();
+      const ef = new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.4,11,8).rotateX(Math.PI/2), new THREE.MeshStandardMaterial({ color:0xcc3333, metalness:0.5, roughness:0.4 }));
+      ef.castShadow = true; enemy.add(ef);
+      const en = new THREE.Mesh(new THREE.ConeGeometry(1.1,3.5,8).rotateX(Math.PI/2), new THREE.MeshStandardMaterial({ color:0xdd4444 }));
+      en.position.z = 7; en.castShadow = true; enemy.add(en);
+      const ew = new THREE.Mesh(new THREE.BoxGeometry(16,0.6,3.5), new THREE.MeshStandardMaterial({ color:0xaa3333 }));
+      ew.position.set(0,-0.2,0); ew.castShadow = true; enemy.add(ew);
+      const et = new THREE.Mesh(new THREE.BoxGeometry(6,0.5,2), new THREE.MeshStandardMaterial({ color:0x992222 }));
+      et.position.set(0,0.3,-4.5); et.castShadow = true; enemy.add(et);
+      const efn = new THREE.Mesh(new THREE.BoxGeometry(0.6,3.5,2.5), new THREE.MeshStandardMaterial({ color:0x882222 }));
+      efn.position.set(0,2.2,-5); efn.castShadow = true; enemy.add(efn);
+      enemy.position.set(x, y, z);
+      enemy.rotation.y = Math.random()*Math.PI*2;
+      enemy.castShadow = true; enemy.receiveShadow = true;
+      scene.add(enemy);
+      return {
+        mesh: enemy,
+        alive: true,
+        health: 3,
+        patrolCenter: new THREE.Vector3(x, y, z),
+        patrolRadius: 400 + Math.random()*500,
+        patrolAngle: Math.random()*Math.PI*2,
+        patrolSpeed: 0.25 + Math.random()*0.4,
+        altitude: 200 + Math.random()*350,
+        fireTimer: 0,
+        fireCooldown: 0.8 + Math.random()*1.5
+      };
+    }
+    
+    for (let i = 0; i < 12; i++) {
+      const angle = (i/12)*Math.PI*2, dist = 800 + Math.random()*600;
+      enemies.push(createEnemyAircraft(Math.cos(angle)*dist, 200+Math.random()*300, Math.sin(angle)*dist+400));
+    }
+
+    // ==================== 飞行状态 ====================
+    const plane = { speed:160, throttle:0.7, pitchRate:0, rollRate:0, yawRate:0, pitch:0, roll:0, yaw:0, flaps:0, gearDown:false, afterburner:false, fuel:100 };
+
+    // ==================== 武器系统 ====================
+    const missiles = [];
+    const bullets = [];
+    const explosions = [];
+    // 导弹数量设为无限（用一个大数表示），且不消耗
+    let missileCount = 9999; 
+    let score = 0, screenShake = 0, lockedTarget = null, lockAge = 0;
+    let gunCooldown = 0;
+
+    function findBestLockTarget() {
+      const forward = new THREE.Vector3(0,0,1).applyQuaternion(aircraft.quaternion);
+      const planePos = aircraft.position.clone();
+      let best = null, bestScore = Infinity;
+      for (const enemy of enemies) {
+        if (!enemy.alive) continue;
+        const to = enemy.mesh.position.clone().sub(planePos);
+        const dist = to.length();
+        if (dist > 1500 || dist < 30) continue;
+        const angle = forward.angleTo(to.normalize());
+        if (angle < Math.PI/3.5) {
+          const s = dist*0.3 + angle*200;
+          if (s < bestScore) { bestScore = s; best = enemy; }
+        }
+      }
+      return best;
+    }
+
+    function fireGun() {
+      if (gunCooldown > 0) return;
+      gunCooldown = 0.08;
+      
+      const forward = new THREE.Vector3(0,0,1).applyQuaternion(aircraft.quaternion);
+      const spread = 0.015;
+      const dir = forward.clone();
+      dir.x += (Math.random()-0.5)*spread;
+      dir.y += (Math.random()-0.5)*spread;
+      dir.z += (Math.random()-0.5)*spread;
+      dir.normalize();
+      
+      // 机炮弹丸加大
+      const bulletGeo = new THREE.SphereGeometry(0.45, 6);
+      const bullet = new THREE.Mesh(bulletGeo, new THREE.MeshBasicMaterial({ color: 0xffff00 }));
+      bullet.position.copy(aircraft.position).add(forward.clone().multiplyScalar(10));
+      bullet.velocity = dir.clone().multiplyScalar(800);
+      bullet.life = 3.0;
+      scene.add(bullet);
+      bullets.push(bullet);
+      
+      playSound(1000, 0.05, 'square', 0.05);
+    }
+
+    function createMissile() {
+      // 导弹无限，无需检查数量
+      
+      const forward = new THREE.Vector3(0,0,1).applyQuaternion(aircraft.quaternion);
+      const speed = 450;
+      const vel = forward.clone().multiplyScalar(speed);
+      
+      const mg = new THREE.Group();
+      mg.add(new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.4,4,6).rotateX(Math.PI/2), new THREE.MeshStandardMaterial({ color:0xff4400, emissive:0x331100 })));
+      const flame = new THREE.Mesh(new THREE.ConeGeometry(0.5,2.5,6).rotateX(Math.PI/2), new THREE.MeshBasicMaterial({ color:0xff8800 }));
+      flame.position.z = -2.8; mg.add(flame);
+      mg.position.copy(aircraft.position).add(forward.clone().multiplyScalar(16));
+      mg.quaternion.copy(aircraft.quaternion);
+      scene.add(mg);
+      
+      let target = null;
+      if (lockedTarget && lockedTarget.alive) {
+        target = { mesh: lockedTarget.mesh, enemy: lockedTarget };
+      }
+      
+      missiles.push({ mesh: mg, flame, velocity: vel, speed, life: 15, trailParticles: [], target, age: 0 });
+      playSound(450, 0.25, 'sawtooth', 0.12);
+    }
+
+    function enemyFire(enemy) {
+      const forward = new THREE.Vector3(0,0,1).applyQuaternion(enemy.mesh.quaternion);
+      const toPlayer = aircraft.position.clone().sub(enemy.mesh.position).normalize();
+      const aimDir = forward.clone().lerp(toPlayer, 0.7).normalize();
+      
+      const bulletGeo = new THREE.SphereGeometry(0.12, 4);
+      const bullet = new THREE.Mesh(bulletGeo, new THREE.MeshBasicMaterial({ color: 0xff4444 }));
+      bullet.position.copy(enemy.mesh.position).add(forward.clone().multiplyScalar(8));
+      bullet.velocity = aimDir.clone().multiplyScalar(600);
+      bullet.life = 4.0;
+      bullet.isEnemy = true;
+      scene.add(bullet);
+      enemyBullets.push(bullet);
+    }
+
+    function addExplosion(pos, type) {
+      const particles = [];
+      const count = type==='airport'?5:(type==='airkill'?50:(type==='crash'?90:110));
+      for (let i=0;i<count;i++) {
+        const s = 0.2+Math.random()*1.8;
+        const g = new THREE.SphereGeometry(s,4);
+        let col;
+        if (type==='water') col = new THREE.Color().setHSL(0.55,0.8,0.4+Math.random()*0.4);
+        else if (type==='airport') col = new THREE.Color(0xcccccc);
+        else if (type==='airkill'||type==='crash') col = new THREE.Color().setHSL(0.05+Math.random()*0.08,1,0.5+Math.random()*0.4);
+        else col = new THREE.Color().setHSL(0.08+Math.random()*0.1,1,0.4+Math.random()*0.5);
+        const m = new THREE.MeshBasicMaterial({ color:col, transparent:true, opacity:1 });
+        const p = new THREE.Mesh(g, m);
+        p.position.copy(pos);
+        p.velocity = new THREE.Vector3((Math.random()-0.5)*50, Math.random()*35+8, (Math.random()-0.5)*50);
+        p.life = 2.0+Math.random()*0.8;
+        scene.add(p); particles.push(p);
+      }
+      if (type!=='airport') {
+        const l = new THREE.PointLight(type==='water'?0x4488ff:(type==='airkill'||type==='crash'?0xff4444:0xff6600),4,100);
+        l.position.copy(pos); scene.add(l); setTimeout(()=>scene.remove(l),500);
+      }
+      if (type==='terrain'||type==='building'||type==='crash'){screenShake=0.5;playSound(45,0.8,'triangle',0.3);}
+      else if (type==='airkill'){screenShake=0.3;playSound(65,0.5,'triangle',0.2);}
+      else if (type==='water') playSound(180,0.35,'sine',0.12);
+      explosions.push({particles,time:2.5});
+    }
+
+    let audioCtx = null;
+    function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();}
+    function playSound(f,d,t='square',v=0.12){if(!audioCtx)return;try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t;o.frequency.setValueAtTime(f,audioCtx.currentTime);g.gain.setValueAtTime(v,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+d);o.connect(g);g.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+d);}catch(e){}}
+
+    // ==================== 输入 ====================
+    const keys = {};
+    let mouseDown = false;
+    
+    window.addEventListener('keydown',(e)=>{
+      keys[e.key.toLowerCase()]=true; initAudio();
+      if (e.key.toLowerCase()==='m') createMissile();
+      if (e.key.toLowerCase()==='l') toggleLock();
+      if (e.key.toLowerCase()==='j') fireGun();
+      if (e.key.toLowerCase()==='r') resetAircraft();
+      if (e.key.toLowerCase()==='c') cameraMode=(cameraMode+1)%3;
+      if (e.key.toLowerCase()==='f') plane.flaps=(plane.flaps+1)%3;
+      if (e.key.toLowerCase()==='g') plane.gearDown=!plane.gearDown;
+      e.preventDefault();
+    });
+    window.addEventListener('keyup',(e)=>{keys[e.key.toLowerCase()]=false;});
+    window.addEventListener('mousedown',()=>{mouseDown=true;initAudio();});
+    window.addEventListener('mouseup',()=>{mouseDown=false;});
+    
+    document.getElementById('btn-gun').addEventListener('pointerdown',(e)=>{e.preventDefault();fireGun();initAudio();});
+    document.getElementById('btn-missile').addEventListener('pointerdown',(e)=>{e.preventDefault();createMissile();initAudio();});
+    document.getElementById('btn-lock').addEventListener('pointerdown',(e)=>{e.preventDefault();toggleLock();});
+    document.getElementById('btn-gear').addEventListener('pointerdown',(e)=>{e.preventDefault();plane.gearDown=!plane.gearDown;});
+    document.getElementById('btn-flaps').addEventListener('pointerdown',(e)=>{e.preventDefault();plane.flaps=(plane.flaps+1)%3;});
+    document.getElementById('btn-camera').addEventListener('pointerdown',(e)=>{e.preventDefault();cameraMode=(cameraMode+1)%3;});
+
+    let cameraMode = 0;
+    function toggleLock(){
+      if(lockedTarget){lockedTarget=null;lockAge=0;updateLockUI(false);}
+      else{lockedTarget=findBestLockTarget();if(lockedTarget){lockAge=0;updateLockUI(true);playSound(800,0.1,'sine',0.08);}}
+    }
+    function updateLockUI(active){
+      document.getElementById('lock-box').classList.toggle('active',active);
+      document.getElementById('lock-target').textContent = active?'敌机':'无';
+    }
+    function resetAircraft(){
+      aircraft.position.set(0,400,400);aircraft.rotation.set(0,0,0);
+      plane.speed=160;plane.throttle=0.7;plane.pitch=0;plane.roll=0;plane.yaw=0;
+      plane.pitchRate=0;plane.rollRate=0;plane.yawRate=0;plane.fuel=100;
+      plane.flaps=0;plane.gearDown=false;plane.afterburner=false;
+      missileCount=9999; // 无限
+      lockedTarget=null;updateLockUI(false);
+    }
+
+    // ==================== 物理更新 ====================
+    function updatePhysics(dt){
+      if(dt>0.1)dt=0.1;
+      const ip=(keys['w']||keys['arrowup']?1:0)-(keys['s']||keys['arrowdown']?1:0);
+      const ir=(keys['d']||keys['arrowright']?1:0)-(keys['a']||keys['arrowleft']?1:0);
+      const iy=(keys['e']?1:0)-(keys['q']?1:0);
+      if(keys['shift'])plane.throttle=Math.min(1,plane.throttle+0.4*dt);
+      if(keys['control'])plane.throttle=Math.max(0,plane.throttle-0.4*dt);
+      plane.afterburner=keys[' ']||keys['space'];
+      
+      const acs=2.5;
+      plane.pitchRate+=ip*1.8*dt*3;plane.pitchRate-=plane.pitch*acs*dt;plane.pitchRate*=Math.pow(0.02,dt);plane.pitch+=plane.pitchRate*dt;plane.pitch=Math.max(-0.75,Math.min(0.75,plane.pitch));
+      plane.rollRate+=ir*2.5*dt*3;plane.rollRate-=plane.roll*acs*dt;plane.rollRate*=Math.pow(0.02,dt);plane.roll+=plane.rollRate*dt;plane.roll=Math.max(-1.3,Math.min(1.3,plane.roll));
+      plane.yawRate+=(iy*1.5+plane.roll*0.6)*dt*2;plane.yawRate*=Math.pow(0.03,dt);plane.yaw+=plane.yawRate*dt;
+      
+      let thrust=plane.throttle*140;
+      if(plane.afterburner){ // 燃料无限，加力不消耗燃料
+        thrust+=100;
+      }
+      const drag=(0.016+(plane.gearDown?0.05:0)+plane.flaps*0.01)*plane.speed*0.5;
+      plane.speed+=(thrust-drag)*dt*0.35;plane.speed=Math.max(22,Math.min(550,plane.speed));
+      // 燃料无限，不移除燃料
+      
+      aircraft.rotation.order='YXZ';aircraft.rotation.x=plane.pitch;aircraft.rotation.z=-plane.roll;aircraft.rotation.y=plane.yaw;
+      const fwd=new THREE.Vector3(0,0,1).applyQuaternion(aircraft.quaternion);
+      const sms=plane.speed*0.51444;
+      aircraft.position.x+=fwd.x*sms*dt;aircraft.position.y+=fwd.y*sms*dt;aircraft.position.z+=fwd.z*sms*dt;
+      if(plane.speed<90&&plane.flaps<2)aircraft.position.y-=8*dt;
+      const gh=getTerrainHeight(aircraft.position.x,aircraft.position.z);
+      if(aircraft.position.y<gh+2.5)aircraft.position.y=gh+2.5;
+      const half=worldSize/2-50;
+      aircraft.position.x=Math.max(-half,Math.min(half,aircraft.position.x));
+      aircraft.position.z=Math.max(-half,Math.min(half,aircraft.position.z));
+      
+      // 机炮冷却
+      if(gunCooldown>0)gunCooldown-=dt;
+      if(mouseDown||keys['j'])fireGun();
+      
+      // 起落架动画
+      gearGroup.visible = plane.gearDown;
+    }
+
+    function updateEnemies(dt){
+      for(const enemy of enemies){
+        if(!enemy.alive)continue;
+        enemy.patrolAngle+=enemy.patrolSpeed*dt;
+        const tx=enemy.patrolCenter.x+Math.cos(enemy.patrolAngle)*enemy.patrolRadius;
+        const tz=enemy.patrolCenter.z+Math.sin(enemy.patrolAngle)*enemy.patrolRadius;
+        const ty=enemy.altitude+Math.sin(enemy.patrolAngle*2)*80;
+        const toTarget=new THREE.Vector3(tx,ty,tz).sub(enemy.mesh.position);
+        const dist=toTarget.length();
+        const dir=toTarget.normalize();
+        const speed=80;
+        enemy.mesh.position.x+=dir.x*speed*dt;enemy.mesh.position.y+=dir.y*speed*dt;enemy.mesh.position.z+=dir.z*speed*dt;
+        enemy.mesh.lookAt(new THREE.Vector3(tx,ty,tz));
+        
+        // 敌人开火
+        enemy.fireTimer-=dt;
+        const toPlayer=aircraft.position.clone().sub(enemy.mesh.position);
+        if(toPlayer.length()<600&&enemy.fireTimer<=0){
+          enemyFire(enemy);
+          enemy.fireTimer=enemy.fireCooldown;
+        }
+        
+        const half=worldSize/2-80;
+        enemy.mesh.position.x=Math.max(-half,Math.min(half,enemy.mesh.position.x));
+        enemy.mesh.position.z=Math.max(-half,Math.min(half,enemy.mesh.position.z));
+        enemy.mesh.position.y=Math.max(60,Math.min(600,enemy.mesh.position.y));
+      }
+      
+      // 坠毁敌机
+      for(let i=crashingEnemies.length-1;i>=0;i--){
+        const ce=crashingEnemies[i];ce.time-=dt;
+        ce.mesh.rotation.x+=ce.spinSpeed.x*dt;ce.mesh.rotation.z+=ce.spinSpeed.z*dt;ce.mesh.rotation.y+=ce.spinSpeed.y*dt;
+        ce.velocity.y-=35*dt;
+        ce.mesh.position.x+=ce.velocity.x*dt;ce.mesh.position.y+=ce.velocity.y*dt;ce.mesh.position.z+=ce.velocity.z*dt;
+        if(Math.random()<0.85){
+          const sg=new THREE.SphereGeometry(0.5+Math.random()*0.8,4);
+          const sm=new THREE.Mesh(sg,new THREE.MeshBasicMaterial({color:0x333333,transparent:true,opacity:0.75}));
+          sm.position.copy(ce.mesh.position).add(new THREE.Vector3((Math.random()-0.5)*4,(Math.random()-0.5)*4,(Math.random()-0.5)*4));
+          sm.userData={life:1.8};scene.add(sm);ce.smokeParticles.push(sm);
+        }
+        for(let s of ce.smokeParticles){s.userData.life-=dt;s.material.opacity=Math.max(0,s.userData.life*0.6);s.position.y+=4*dt;s.scale.multiplyScalar(1.03);}
+        ce.smokeParticles=ce.smokeParticles.filter(s=>{if(s.userData.life<=0){scene.remove(s);return false;}return true;});
+        const gh=getTerrainHeight(ce.mesh.position.x,ce.mesh.position.z);
+        if(ce.mesh.position.y<=gh+2){ce.mesh.position.y=gh+2;addExplosion(ce.mesh.position.clone(),'crash');ce.mesh.visible=false;ce.smokeParticles.forEach(s=>scene.remove(s));crashingEnemies.splice(i,1);}
+      }
+    }
+
+    function updateBullets(dt){
+      // 玩家子弹
+      for(let i=bullets.length-1;i>=0;i--){
+        const b=bullets[i];
+        b.life-=dt;
+        b.position.x+=b.velocity.x*dt;b.position.y+=b.velocity.y*dt;b.position.z+=b.velocity.z*dt;
+        b.velocity.y-=15*dt;
+        
+        let hit=false;
+        for(const enemy of enemies){
+          if(!enemy.alive)continue;
+          if(b.position.distanceTo(enemy.mesh.position)<12){
+            enemy.health--;
+            if(enemy.health<=0){
+              enemy.alive=false;score+=25;
+              addExplosion(b.position.clone(),'airkill');
+              crashingEnemies.push({mesh:enemy.mesh,velocity:new THREE.Vector3((Math.random()-0.5)*40,15,(Math.random()-0.5)*40),spinSpeed:new THREE.Vector3((Math.random()-0.5)*6,(Math.random()-0.5)*5,(Math.random()-0.5)*6),time:10,smokeParticles:[]});
+            }
+            hit=true;break;
+          }
+        }
+        if(hit){scene.remove(b);bullets.splice(i,1);continue;}
+        
+        const gh=getTerrainHeight(b.position.x,b.position.z);
+        if(b.position.y<=gh||b.life<=0){scene.remove(b);bullets.splice(i,1);}
+      }
+      
+      // 敌人子弹
+      for(let i=enemyBullets.length-1;i>=0;i--){
+        const b=enemyBullets[i];
+        b.life-=dt;
+        b.position.x+=b.velocity.x*dt;b.position.y+=b.velocity.y*dt;b.position.z+=b.velocity.z*dt;
+        b.velocity.y-=15*dt;
+        
+        if(b.position.distanceTo(aircraft.position)<10){
+          plane.fuel-=5;screenShake=0.15;
+          addExplosion(b.position.clone(),'airkill');
+          scene.remove(b);enemyBullets.splice(i,1);continue;
+        }
+        
+        const gh=getTerrainHeight(b.position.x,b.position.z);
+        if(b.position.y<=gh||b.life<=0){scene.remove(b);enemyBullets.splice(i,1);}
+      }
+    }
+
+    function updateMissiles(dt){
+      for(let i=missiles.length-1;i>=0;i--){
+        const m=missiles[i];m.life-=dt;m.age+=dt;
+        if(m.target&&m.target.enemy.alive&&m.age>0.25){
+          const tp=m.target.mesh.position;
+          const toTarget=tp.clone().sub(m.mesh.position);
+          const dist=toTarget.length();
+          if(dist>2){
+            const dd=toTarget.normalize();
+            const cd=m.velocity.clone().normalize();
+            const axis=new THREE.Vector3().crossVectors(cd,dd).normalize();
+            const angle=Math.acos(Math.max(-1,Math.min(1,cd.dot(dd))));
+            const maxTurn=5.0*dt;
+            const actual=Math.min(angle,maxTurn);
+            if(axis.length()>0.001&&actual>0.001){
+              m.velocity=cd.clone().applyAxisAngle(axis,actual).multiplyScalar(m.speed);
+            }else{
+              m.velocity=dd.clone().multiplyScalar(m.speed);
+            }
+          }
+        }
+        m.velocity.y-=18*dt;
+        const spd=m.velocity.length();
+        if(spd>0)m.velocity.normalize().multiplyScalar(m.speed);
+        m.mesh.position.x+=m.velocity.x*dt;m.mesh.position.y+=m.velocity.y*dt;m.mesh.position.z+=m.velocity.z*dt;
+        if(m.velocity.length()>1)m.mesh.lookAt(m.mesh.position.clone().add(m.velocity));
+        if(m.flame)m.flame.scale.setScalar(0.7+Math.random()*0.7);
+        
+        if(Math.random()<0.7){
+          const tr=new THREE.Mesh(new THREE.SphereGeometry(0.3,4),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.65}));
+          tr.position.copy(m.mesh.position);tr.userData={life:0.7};scene.add(tr);m.trailParticles.push(tr);
+        }
+        for(let t of m.trailParticles){t.userData.life-=dt;t.material.opacity=Math.max(0,t.userData.life*0.7);t.scale.multiplyScalar(1.02);}
+        m.trailParticles=m.trailParticles.filter(t=>{if(t.userData.life<=0){scene.remove(t);return false;}return true;});
+        
+        const pos=m.mesh.position;
+        let hitEnemy=false;
+        for(const enemy of enemies){
+          if(!enemy.alive)continue;
+          if(pos.distanceTo(enemy.mesh.position)<18){
+            enemy.alive=false;score+=25;
+            addExplosion(pos.clone(),'airkill');
+            crashingEnemies.push({mesh:enemy.mesh,velocity:new THREE.Vector3((Math.random()-0.5)*40,15,(Math.random()-0.5)*40),spinSpeed:new THREE.Vector3((Math.random()-0.5)*6,(Math.random()-0.5)*5,(Math.random()-0.5)*6),time:10,smokeParticles:[]});
+            hitEnemy=true;break;
+          }
+        }
+        if(hitEnemy){removeMissile(i);continue;}
+        
+        const gh=getTerrainHeight(pos.x,pos.z);
+        let inAirport=false;
+        for(const ap of airports){if(pos.distanceTo(ap.center)<ap.radius){inAirport=true;break;}}
+        if(pos.y<=gh){
+          if(inAirport)addExplosion(new THREE.Vector3(pos.x,gh,pos.z),'airport');
+          else{addExplosion(new THREE.Vector3(pos.x,gh,pos.z),'terrain');
+            for(let t of targets){if(!t.destroyed&&pos.distanceTo(t.position)<35){t.destroyed=true;t.mesh.visible=false;score+=10;addExplosion(t.position.clone(),'building');}}}
+          removeMissile(i);continue;
+        }
+        if(pos.y<=13&&gh<13){addExplosion(new THREE.Vector3(pos.x,13,pos.z),'water');removeMissile(i);continue;}
+        if(m.life<=0){addExplosion(pos.clone(),'self');removeMissile(i);}
+      }
+    }
+
+    function removeMissile(i){
+      const m=missiles[i];scene.remove(m.mesh);
+      m.trailParticles.forEach(t=>scene.remove(t));missiles.splice(i,1);
+    }
+
+    function updateExplosions(dt){
+      for(let i=explosions.length-1;i>=0;i--){
+        const e=explosions[i];e.time-=dt;
+        for(let p of e.particles){p.position.x+=p.velocity.x*dt;p.position.y+=p.velocity.y*dt;p.position.z+=p.velocity.z*dt;p.velocity.y-=20*dt;p.material.opacity=Math.max(0,e.time/2.5);p.scale.multiplyScalar(0.97);}
+        if(e.time<=0){e.particles.forEach(p=>scene.remove(p));explosions.splice(i,1);}
+      }
+      lockAge+=dt;
+      if(lockedTarget&&lockAge>0.4){lockAge=0;const nt=findBestLockTarget();if(nt)lockedTarget=nt;else{lockedTarget=null;updateLockUI(false);}}
+    }
+
+    function updateHUD(){
+      const fwd=new THREE.Vector3(0,0,1).applyQuaternion(aircraft.quaternion);
+      const hdg=((Math.atan2(fwd.x,fwd.z)*180/Math.PI)+360)%360;
+      document.getElementById('speed').textContent=Math.round(plane.speed);
+      document.getElementById('alt').textContent=Math.round(aircraft.position.y);
+      document.getElementById('hdg').textContent=Math.round(hdg).toString().padStart(3,'0');
+      document.getElementById('vs').textContent=Math.round(fwd.y*plane.speed*0.51444*196.85);
+      document.getElementById('thr').textContent=Math.round(plane.throttle*100);
+      document.getElementById('fuel').textContent='∞';
+      document.getElementById('gforce').textContent=(1+Math.abs(plane.rollRate)*3).toFixed(1);
+      document.getElementById('flaps').textContent=plane.flaps===0?'收':(plane.flaps===1?'1':'2');
+      document.getElementById('gear').textContent=plane.gearDown?'放':'收';
+      document.getElementById('missile-count').textContent='∞';
+      document.getElementById('ammo-count').textContent='∞';
+      document.getElementById('score').textContent=score;
+      document.getElementById('enemy-count').textContent=enemies.filter(e=>e.alive).length+crashingEnemies.length;
+    }
+
+    function animate(){
+      requestAnimationFrame(animate);
+      const dt=Math.min(0.1,0.016);
+      updatePhysics(dt);updateEnemies(dt);updateBullets(dt);updateMissiles(dt);updateExplosions(dt);
+      
+      if(screenShake>0){screenShake=Math.max(0,screenShake-dt*2.5);camera.position.x+=(Math.random()-0.5)*screenShake*15;camera.position.y+=(Math.random()-0.5)*screenShake*12;}
+      
+      const pp=aircraft.position.clone();
+      const fwd=new THREE.Vector3(0,0,1).applyQuaternion(aircraft.quaternion);
+      if(cameraMode===0){const off=fwd.clone().multiplyScalar(-40);off.y+=16;camera.position.lerp(pp.clone().add(off),0.08);camera.lookAt(pp.clone().add(fwd.clone().multiplyScalar(30)));}
+      else if(cameraMode===1){camera.position.copy(pp.clone().add(fwd.clone().multiplyScalar(5)).add(new THREE.Vector3(0,2,0)));camera.lookAt(pp.clone().add(fwd.clone().multiplyScalar(80)));}
+      else{camera.position.lerp(pp.clone().add(new THREE.Vector3(250,180,250)),0.04);camera.lookAt(pp);}
+      
+      sun.position.copy(pp).add(new THREE.Vector3(500,900,400));
+      const time=Date.now()*0.001;
+      for(const ap of airports){for(const l of ap.lights){l.material.color.setHex(Math.sin(time*4+ap.lights.indexOf(l))>0?0xff4400:0x442200);}}
+      
+      updateHUD();
+      renderer.render(scene,camera);
+    }
+
+    window.addEventListener('resize',()=>{camera.aspect=window.innerWidth/window.innerHeight;camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);});
+    aircraft.rotation.y=-0.15;plane.yaw=-0.15;
+    initAudio();animate();
+    
+    console.log('✈️ Turbo Flight Simulator v4.0 - 机炮空战 (无限导弹 & 燃料)');
+    console.log('🔫 鼠标左键/J键: 机炮 | 🚀 M键: 导弹 (无限)');
+    console.log('🎯 L键: 锁定敌机(导弹追踪) | 敌机有机枪会攻击你');
+    console.log('🌍 地图5000x5000 | 6个机场 | 12架敌机');
+  </script>
+</body>
+</html>
