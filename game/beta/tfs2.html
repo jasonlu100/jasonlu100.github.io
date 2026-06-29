@@ -1,1 +1,877 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, touch-action=manipulation">
+  <title>Turbo Flight Simulator 2 自由飞行</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Segoe UI', 'Arial', sans-serif;
+      background: #000;
+      touch-action: none;
+    }
+    #hud {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: #00ff88;
+      font-size: 10px;
+      text-shadow: 1px 1px 2px #000;
+      pointer-events: none;
+      background: rgba(0,0,0,0.6);
+      padding: 8px 12px;
+      border-radius: 8px;
+      line-height: 1.6;
+      border: 1px solid rgba(0,255,136,0.3);
+      backdrop-filter: blur(6px);
+      font-family: 'Courier New', monospace;
+      z-index: 100;
+    }
+    #hud span { color: #ffffff; font-weight: bold; }
+    #crosshair {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      pointer-events: none;
+      z-index: 100;
+    }
+    #radar-container {
+      position: absolute;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: rgba(0, 20, 30, 0.85);
+      border: 2px solid rgba(0, 255, 136, 0.6);
+      box-shadow: 0 0 20px rgba(0, 255, 136, 0.15);
+      pointer-events: none;
+      z-index: 150;
+      backdrop-filter: blur(4px);
+      overflow: hidden;
+    }
+    #radar-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 50%;
+    }
+    #radar-center-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #00ff88;
+      box-shadow: 0 0 10px #00ff88;
+      pointer-events: none;
+    }
+    #mobile-controls {
+      position: absolute;
+      bottom: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      pointer-events: auto;
+      z-index: 200;
+      flex-wrap: nowrap;
+      background: rgba(0,0,0,0.3);
+      padding: 8px 12px;
+      border-radius: 30px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.1);
+      max-width: 95%;
+      overflow-x: auto;
+    }
+    .mobile-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.10);
+      border: 1.5px solid rgba(255,255,255,0.4);
+      color: white;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      backdrop-filter: blur(4px);
+      user-select: none;
+      touch-action: manipulation;
+      cursor: pointer;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    .mobile-btn:active { background: rgba(255,255,255,0.30); transform: scale(0.88); }
+    #btn-brake { background: rgba(255, 68, 68, 0.3); border-color: rgba(255, 68, 68, 0.6); color: #ff4444; }
+    #joystick-area {
+      position: absolute;
+      bottom: 110px;
+      left: 20px;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      border: 2px solid rgba(255,255,255,0.15);
+      touch-action: none;
+      z-index: 180;
+      display: none;
+      pointer-events: auto;
+    }
+    #joystick-knob {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,255,136,0.3), rgba(0,255,136,0.05));
+      border: 2px solid rgba(0,255,136,0.5);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    #throttle-slider {
+      position: absolute;
+      bottom: 110px;
+      right: 20px;
+      width: 30px;
+      height: 120px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 15px;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      touch-action: none;
+      z-index: 180;
+      display: none;
+      pointer-events: auto;
+      overflow: hidden;
+    }
+    #throttle-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: linear-gradient(to top, #ff8800, #ffcc00);
+      border-radius: 15px;
+      transition: height 0.05s;
+      opacity: 0.7;
+    }
+    @media (pointer: coarse) {
+      #joystick-area { display: block; }
+      #throttle-slider { display: block; }
+    }
+    @media (max-width: 700px) {
+      #hud { font-size: 8px; padding: 6px 10px; top: 6px; left: 6px; line-height: 1.4; }
+      #radar-container { width: 100px; height: 100px; bottom: 80px; }
+      .mobile-btn { width: 36px; height: 36px; font-size: 14px; }
+      #mobile-controls { padding: 6px 10px; gap: 6px; bottom: 12px; }
+      #joystick-area { width: 100px; height: 100px; bottom: 95px; left: 12px; }
+      #joystick-knob { width: 40px; height: 40px; }
+      #crosshair { width: 32px; height: 32px; }
+      #throttle-slider { width: 24px; height: 90px; bottom: 85px; right: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <div>速度 <span id="speed">0</span>kt | 高度 <span id="alt">0</span>m</div>
+    <div>航向 <span id="hdg">000</span>° | V/S <span id="vs">0</span>m/s</div>
+    <div>油门 <span id="thr">50</span>% | 刹车 <span id="brake-status">🛑刹</span></div>
+    <div>G: <span id="gforce">1.0</span> | 襟翼:<span id="flaps">收</span> 起落架:<span id="gear">放</span></div>
+  </div>
+  <div id="crosshair">
+    <svg width="40" height="40" viewBox="0 0 40 40">
+      <circle cx="20" cy="20" r="16" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.5"/>
+      <line x1="20" y1="0" x2="20" y2="40" stroke="rgba(255,255,255,0.9)" stroke-width="1.5"/>
+      <line x1="0" y1="20" x2="40" y2="20" stroke="rgba(255,255,255,0.9)" stroke-width="1.5"/>
+      <circle cx="20" cy="20" r="4" fill="rgba(255,100,0,0.8)"/>
+    </svg>
+  </div>
+  <div id="radar-container">
+    <canvas id="radar-canvas"></canvas>
+    <div id="radar-center-dot"></div>
+  </div>
+  <div id="joystick-area">
+    <div id="joystick-knob"></div>
+  </div>
+  <div id="throttle-slider">
+    <div id="throttle-fill" style="height:50%"></div>
+  </div>
+  <div id="mobile-controls">
+    <div class="mobile-btn" id="btn-brake">🛑</div>
+    <div class="mobile-btn" id="btn-gear">⚙️</div>
+    <div class="mobile-btn" id="btn-flaps">🛬</div>
+    <div class="mobile-btn" id="btn-camera">📷</div>
+  </div>
 
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.128.0/build/three.module.js" } }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x87CEEB);
+    scene.fog = new THREE.Fog(0x87CEEB, 2500, 14000);
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 20000);
+    camera.position.set(0, 400, 600);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    document.body.appendChild(renderer.domElement);
+
+    const ambient = new THREE.AmbientLight(0x556677, 0.7);
+    scene.add(ambient);
+    const sun = new THREE.DirectionalLight(0xfff8e7, 1.3);
+    sun.position.set(1000, 1500, 600);
+    sun.castShadow = true;
+    sun.shadow.mapSize.width = 2048;
+    sun.shadow.mapSize.height = 2048;
+    sun.shadow.camera.near = 5;
+    sun.shadow.camera.far = 12000;
+    sun.shadow.camera.left = -4000;
+    sun.shadow.camera.right = 4000;
+    sun.shadow.camera.top = 4000;
+    sun.shadow.camera.bottom = -4000;
+    scene.add(sun);
+    scene.add(new THREE.HemisphereLight(0x87ceeb, 0x443322, 0.5));
+
+    // ==================== 地形（移除人工压低逻辑） ====================
+    const worldSize = 15000;
+    const segments = 300;
+
+    function getTerrainHeight(x, z) {
+      const nx = x / worldSize;
+      const nz = z / worldSize;
+      let h = 30; // 基础高度从25提升到30，避免出现接近0的高度
+      
+      // 大型地貌
+      h += Math.sin(nx * Math.PI * 1.2) * Math.cos(nz * Math.PI * 1.0) * 300;
+      h += Math.cos(nx * Math.PI * 0.8 + 1.5) * Math.sin(nz * Math.PI * 1.1) * 250;
+      
+      // 中型丘陵
+      h += Math.sin(nx * Math.PI * 2.5) * Math.cos(nz * Math.PI * 2.0) * 100;
+      h += Math.cos(nx * Math.PI * 2.0 + 0.6) * Math.sin(nz * Math.PI * 2.5) * 90;
+      h += Math.sin(nx * Math.PI * 3.5 + nz * Math.PI * 1.5) * 60;
+      
+      // 小型起伏
+      h += Math.sin(nx * Math.PI * 5.0) * Math.cos(nz * Math.PI * 4.5) * 30;
+      h += Math.cos(nx * Math.PI * 6.0) * Math.sin(nz * Math.PI * 6.5) * 20;
+      h += Math.sin(nx * Math.PI * 8.0) * Math.cos(nz * Math.PI * 7.0) * 10;
+      
+      // 山脉（高斯形，自然圆润）
+      const peaks = [
+        { cx: -0.3, cz: -0.2, h: 500, r: 0.18 },
+        { cx: 0.35, cz: 0.12, h: 550, r: 0.16 },
+        { cx: 0.05, cz: -0.35, h: 420, r: 0.2 },
+        { cx: -0.35, cz: 0.3, h: 460, r: 0.18 },
+        { cx: 0.4, cz: -0.3, h: 520, r: 0.15 },
+        { cx: 0.2, cz: 0.4, h: 380, r: 0.22 },
+        { cx: -0.4, cz: -0.05, h: 480, r: 0.17 },
+        { cx: 0.3, cz: -0.2, h: 440, r: 0.19 },
+        { cx: -0.2, cz: 0.25, h: 400, r: 0.2 },
+        { cx: 0.45, cz: 0.0, h: 560, r: 0.14 },
+        { cx: -0.1, cz: -0.4, h: 430, r: 0.21 },
+        { cx: 0.15, cz: 0.15, h: 470, r: 0.17 },
+      ];
+      for (const peak of peaks) {
+        const dx = (nx - peak.cx) / peak.r;
+        const dz = (nz - peak.cz) / peak.r;
+        const dist = Math.sqrt(dx*dx + dz*dz);
+        if (dist < 2.5) h += peak.h * Math.exp(-dist * dist * 2.2);
+      }
+      
+      // 高原（只增加高度，不压低）
+      const plateau = Math.sin(nx * Math.PI * 0.6) * Math.cos(nz * Math.PI * 0.8);
+      if (plateau > 0.6) h += (plateau - 0.6) * 350;
+      
+      // 🔥 完全移除人工压低地形的逻辑
+      // 平原区域通过自然正弦波的低振幅区域自然形成
+      
+      return Math.max(15, h); // 最小高度15米，不会出现0
+    }
+
+    const terrainGeo = new THREE.PlaneGeometry(worldSize, worldSize, segments, segments);
+    terrainGeo.rotateX(-Math.PI/2);
+    const posArray = terrainGeo.attributes.position.array;
+    const colors = [];
+    for (let i = 0; i < posArray.length; i += 3) {
+      const x = posArray[i], z = posArray[i+2];
+      const h = getTerrainHeight(x, z);
+      posArray[i+1] = h;
+      let r, g, b;
+      if (h < 18) { r=0.18; g=0.38; b=0.48; }
+      else if (h < 45) { r=0.25; g=0.48; b=0.2; }
+      else if (h < 90) { r=0.35; g=0.48; b=0.16; }
+      else if (h < 160) { r=0.45; g=0.42; b=0.25; }
+      else if (h < 300) { r=0.52; g=0.48; b=0.35; }
+      else if (h < 450) { r=0.62; g=0.55; b=0.45; }
+      else { r=0.75; g=0.7; b=0.65; }
+      colors.push(r, g, b);
+    }
+    terrainGeo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    terrainGeo.computeVertexNormals();
+    const terrain = new THREE.Mesh(terrainGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, metalness: 0.05 }));
+    terrain.receiveShadow = true; terrain.castShadow = true;
+    scene.add(terrain);
+
+    const water = new THREE.Mesh(
+      new THREE.PlaneGeometry(worldSize*1.5, worldSize*1.5).rotateX(-Math.PI/2),
+      new THREE.MeshStandardMaterial({ color: 0x1a5588, roughness: 0.12, metalness: 0.7, transparent: true, opacity: 0.7 })
+    );
+    water.position.y = 13;
+    scene.add(water);
+
+    // ==================== 查找平坦区域 ====================
+    function isFlatArea(cx, cz, requiredRadius) {
+      const centerH = getTerrainHeight(cx, cz);
+      // 检查中心点高度是否合理（不能太低）
+      if (centerH < 20 || centerH > 300) return false;
+      
+      const checkPoints = 24;
+      for (let i = 0; i < checkPoints; i++) {
+        const angle = (i / checkPoints) * Math.PI * 2;
+        for (let r = requiredRadius * 0.2; r <= requiredRadius; r += requiredRadius * 0.2) {
+          const px = cx + Math.cos(angle) * r;
+          const pz = cz + Math.sin(angle) * r;
+          const h = getTerrainHeight(px, pz);
+          // 高差不能超过3米
+          if (Math.abs(h - centerH) > 3) return false;
+        }
+      }
+      return true;
+    }
+
+    function findFlatLocation(minDistBetween, requiredRadius) {
+      const candidates = [];
+      const step = 300;
+      for (let x = -worldSize/2 + 800; x < worldSize/2 - 800; x += step) {
+        for (let z = -worldSize/2 + 800; z < worldSize/2 - 800; z += step) {
+          if (isFlatArea(x, z, requiredRadius)) {
+            const h = getTerrainHeight(x, z);
+            candidates.push({ x, z, h });
+          }
+        }
+      }
+      
+      const selected = [];
+      for (const c of candidates) {
+        let tooClose = false;
+        for (const s of selected) {
+          if (Math.sqrt((c.x-s.x)**2 + (c.z-s.z)**2) < minDistBetween) {
+            tooClose = true;
+            break;
+          }
+        }
+        if (!tooClose) selected.push(c);
+        if (selected.length >= 5) break;
+      }
+      return selected;
+    }
+
+    const airports = [];
+    const flatLocations = findFlatLocation(2500, 160);
+    
+    function createAirport(x, z, rot = 0) {
+      const gh = getTerrainHeight(x, z);
+      const y = gh + 0.3;
+      const g = new THREE.Group();
+      g.position.set(x, y, z);
+      g.rotation.y = rot;
+      const rw = new THREE.Mesh(new THREE.PlaneGeometry(300, 50).rotateX(-Math.PI/2), new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.85 }));
+      rw.position.y = 0.05; rw.receiveShadow = true; g.add(rw);
+      const cl = new THREE.Mesh(new THREE.PlaneGeometry(280, 2.5).rotateX(-Math.PI/2), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 }));
+      cl.position.y = 0.08; g.add(cl);
+      for (let side = -1; side <= 1; side += 2) {
+        const el = new THREE.Mesh(new THREE.PlaneGeometry(280, 0.8).rotateX(-Math.PI/2), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5 }));
+        el.position.set(0, 0.08, side*22); g.add(el);
+      }
+      const ap = new THREE.Mesh(new THREE.CircleGeometry(55, 32).rotateX(-Math.PI/2), new THREE.MeshStandardMaterial({ color: 0x555555, roughness: 0.85 }));
+      ap.position.set(40, 0.03, 40); ap.receiveShadow = true; g.add(ap);
+      const tm = new THREE.Mesh(new THREE.BoxGeometry(38, 10, 18), new THREE.MeshStandardMaterial({ color: 0x778899 }));
+      tm.position.set(40, 5.2, 20); tm.castShadow = true; tm.receiveShadow = true; g.add(tm);
+      const tb = new THREE.Mesh(new THREE.CylinderGeometry(3, 4, 15, 8), new THREE.MeshStandardMaterial({ color: 0xcccccc }));
+      tb.position.set(-28, 7.5, 20); tb.castShadow = true; g.add(tb);
+      const tt = new THREE.Mesh(new THREE.CylinderGeometry(5, 3, 5, 8), new THREE.MeshStandardMaterial({ color: 0x99aabb }));
+      tt.position.set(-28, 17, 20); tt.castShadow = true; g.add(tt);
+      for (let i = 0; i < 3; i++) {
+        const hg = new THREE.Mesh(new THREE.BoxGeometry(24, 12, 18), new THREE.MeshStandardMaterial({ color: 0x667788 }));
+        hg.position.set(-28+i*28, 6.2, 35); hg.castShadow = true; hg.receiveShadow = true; g.add(hg);
+      }
+      const lights = [];
+      for (let i = 0; i < 14; i++) {
+        const lg = new THREE.SphereGeometry(0.7, 8);
+        const l = new THREE.Mesh(lg, new THREE.MeshBasicMaterial({ color: i%3===0?0xff4400:(i%3===1?0xffffff:0x44ff44) }));
+        l.position.set(0, 0.7, -160+i*24); g.add(l); lights.push(l);
+      }
+      scene.add(g);
+      return { group: g, center: new THREE.Vector3(x, y, z), radius: 100, lights };
+    }
+
+    for (const loc of flatLocations) {
+      airports.push(createAirport(loc.x, loc.z, Math.random() * Math.PI * 2));
+    }
+    console.log(`✅ 在平坦区域创建了 ${airports.length} 个机场`);
+
+    // ==================== 飞机模型 ====================
+    const aircraft = new THREE.Group();
+    
+    const fuselage = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.2, 1.6, 16, 12).rotateX(Math.PI/2),
+      new THREE.MeshStandardMaterial({ color: 0xd8d8d8, metalness: 0.5, roughness: 0.3 })
+    );
+    fuselage.castShadow = true; aircraft.add(fuselage);
+    
+    const nose = new THREE.Mesh(
+      new THREE.ConeGeometry(1.2, 5, 12).rotateX(Math.PI/2),
+      new THREE.MeshStandardMaterial({ color: 0xe8e8e8, metalness: 0.4 })
+    );
+    nose.position.z = 10; nose.castShadow = true; aircraft.add(nose);
+    
+    const cockpit = new THREE.Mesh(
+      new THREE.SphereGeometry(1.1, 8, 4),
+      new THREE.MeshStandardMaterial({ color: 0x2a2a55, metalness: 0.8, roughness: 0.2 })
+    );
+    cockpit.position.set(0, 0.7, 3); cockpit.scale.set(1, 0.65, 1.2); cockpit.castShadow = true; aircraft.add(cockpit);
+    
+    const wing = new THREE.Mesh(
+      new THREE.BoxGeometry(22, 0.7, 4),
+      new THREE.MeshStandardMaterial({ color: 0xc0c0c0, metalness: 0.35, roughness: 0.4 })
+    );
+    wing.position.set(0, -0.3, -0.3); wing.castShadow = true; aircraft.add(wing);
+    
+    for (let s = -1; s <= 1; s += 2) {
+      const winglet = new THREE.Mesh(
+        new THREE.BoxGeometry(1, 2, 0.5),
+        new THREE.MeshStandardMaterial({ color: 0xaaaaaa, metalness: 0.3 })
+      );
+      winglet.position.set(s*11, 0.8, -0.3); winglet.castShadow = true; aircraft.add(winglet);
+    }
+    
+    const tailWing = new THREE.Mesh(
+      new THREE.BoxGeometry(9, 0.5, 2.5),
+      new THREE.MeshStandardMaterial({ color: 0xb0b0b0, metalness: 0.3, roughness: 0.4 })
+    );
+    tailWing.position.set(0, 0.4, -6); tailWing.castShadow = true; aircraft.add(tailWing);
+    
+    const fin = new THREE.Mesh(
+      new THREE.BoxGeometry(0.7, 4.5, 3.5),
+      new THREE.MeshStandardMaterial({ color: 0xa0a0a0, metalness: 0.3, roughness: 0.4 })
+    );
+    fin.position.set(0, 2.8, -6.5); fin.castShadow = true; aircraft.add(fin);
+    
+    const engine = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.9, 1.0, 5, 12).rotateX(Math.PI/2),
+      new THREE.MeshStandardMaterial({ color: 0x555555, metalness: 0.8, roughness: 0.2 })
+    );
+    engine.position.z = -6; engine.castShadow = true; aircraft.add(engine);
+    
+    const navLightGeo = new THREE.SphereGeometry(0.15, 6);
+    const navLightL = new THREE.Mesh(navLightGeo, new THREE.MeshBasicMaterial({ color: 0xff0000 }));
+    navLightL.position.set(-11, -0.2, 0); aircraft.add(navLightL);
+    const navLightR = new THREE.Mesh(navLightGeo, new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+    navLightR.position.set(11, -0.2, 0); aircraft.add(navLightR);
+    
+    const gearGroup = new THREE.Group();
+    const gearMat = new THREE.MeshStandardMaterial({ color: 0x444444, metalness: 0.9, roughness: 0.3 });
+    const wheelMat = new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.8 });
+    function addGear(x, y, z, h) {
+      const strut = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, h, 8), gearMat);
+      strut.position.set(x, y - h/2, z); strut.castShadow = true; gearGroup.add(strut);
+      const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.45, 0.45, 0.3, 10), wheelMat);
+      wheel.rotation.x = Math.PI/2; wheel.position.set(x, y - h, z); wheel.castShadow = true; gearGroup.add(wheel);
+    }
+    addGear(0, -0.3, 3.5, 3.2);
+    addGear(-2.5, -0.4, -0.3, 3.5);
+    addGear(2.5, -0.4, -0.3, 3.5);
+    aircraft.add(gearGroup);
+    
+    // 初始位置放在第一个机场跑道上
+    const startAp = airports.length > 0 ? airports[0] : null;
+    if (startAp) {
+      aircraft.position.set(startAp.center.x, startAp.center.y + 3, startAp.center.z + 100);
+    } else {
+      aircraft.position.set(0, 400, 400);
+    }
+    aircraft.castShadow = true; aircraft.receiveShadow = true;
+    scene.add(aircraft);
+
+    // ==================== 飞行状态 ====================
+    const plane = { 
+      speed: 0, throttle: 0.5, 
+      pitchRate: 0, rollRate: 0, yawRate: 0,
+      pitch: 0, roll: 0, yaw: 0,
+      flaps: 0, gearDown: true, afterburner: false,
+      brake: true
+    };
+
+    // ==================== 输入 ====================
+    const keys = {};
+    window.addEventListener('keydown', (e) => {
+      keys[e.key.toLowerCase()] = true;
+      if (e.key.toLowerCase() === 'c') cameraMode = (cameraMode + 1) % 3;
+      if (e.key.toLowerCase() === 'f') plane.flaps = (plane.flaps + 1) % 3;
+      if (e.key.toLowerCase() === 'g') plane.gearDown = !plane.gearDown;
+      if (e.key.toLowerCase() === 'b') plane.brake = true;
+      if (e.key.toLowerCase() === 'r') resetAircraft();
+      e.preventDefault();
+    });
+    window.addEventListener('keyup', (e) => {
+      keys[e.key.toLowerCase()] = false;
+      if (e.key.toLowerCase() === 'b') plane.brake = false;
+    });
+
+    document.getElementById('btn-brake').addEventListener('pointerdown', (e) => { e.preventDefault(); plane.brake = true; });
+    document.getElementById('btn-brake').addEventListener('pointerup', (e) => { e.preventDefault(); plane.brake = false; });
+    document.getElementById('btn-brake').addEventListener('pointerleave', (e) => { e.preventDefault(); plane.brake = false; });
+    document.getElementById('btn-gear').addEventListener('pointerdown', (e) => { e.preventDefault(); plane.gearDown = !plane.gearDown; });
+    document.getElementById('btn-flaps').addEventListener('pointerdown', (e) => { e.preventDefault(); plane.flaps = (plane.flaps + 1) % 3; });
+    document.getElementById('btn-camera').addEventListener('pointerdown', (e) => { e.preventDefault(); cameraMode = (cameraMode + 1) % 3; });
+
+    // 虚拟摇杆
+    const joystick = { active: false, dx: 0, dy: 0 };
+    const joystickArea = document.getElementById('joystick-area');
+    const joystickKnob = document.getElementById('joystick-knob');
+    let joystickTouchId = null;
+    
+    joystickArea.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const touch = e.changedTouches[0];
+      joystickTouchId = touch.identifier;
+      handleJoystick(touch.clientX, touch.clientY);
+    }, { passive: false, capture: true });
+    
+    joystickArea.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      let touch = null;
+      for (const t of e.changedTouches) {
+        if (t.identifier === joystickTouchId || joystickTouchId === null) { touch = t; break; }
+      }
+      if (!touch) return;
+      if (joystickTouchId === null) joystickTouchId = touch.identifier;
+      handleJoystick(touch.clientX, touch.clientY);
+    }, { passive: false, capture: true });
+    
+    joystickArea.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      for (const t of e.changedTouches) {
+        if (t.identifier === joystickTouchId) { joystickTouchId = null; joystick.active = false; joystick.dx = 0; joystick.dy = 0; joystickKnob.style.transform = 'translate(-50%, -50%)'; break; }
+      }
+    }, { passive: false, capture: true });
+    
+    function handleJoystick(clientX, clientY) {
+      const rect = joystickArea.getBoundingClientRect();
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top + rect.height/2;
+      const maxDist = rect.width/2 - 15;
+      let dx = clientX - cx, dy = clientY - cy;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist > maxDist) { dx = dx / dist * maxDist; dy = dy / dist * maxDist; }
+      joystick.dx = dx / maxDist;
+      joystick.dy = dy / maxDist;
+      joystick.active = true;
+      joystickKnob.style.transform = `translate(${-50 + (dx/maxDist)*50}%, ${-50 + (dy/maxDist)*50}%)`;
+    }
+
+    // 油门滑块
+    const throttleSlider = document.getElementById('throttle-slider');
+    const throttleFill = document.getElementById('throttle-fill');
+    let throttleTouchId = null;
+    
+    throttleSlider.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const touch = e.changedTouches[0];
+      throttleTouchId = touch.identifier;
+      updateThrottleTouch(touch.clientY);
+    }, { passive: false, capture: true });
+    
+    throttleSlider.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      let touch = null;
+      for (const t of e.changedTouches) {
+        if (t.identifier === throttleTouchId || throttleTouchId === null) { touch = t; break; }
+      }
+      if (!touch) return;
+      if (throttleTouchId === null) throttleTouchId = touch.identifier;
+      updateThrottleTouch(touch.clientY);
+    }, { passive: false, capture: true });
+    
+    throttleSlider.addEventListener('touchend', () => { throttleTouchId = null; });
+    
+    function updateThrottleTouch(clientY) {
+      const rect = throttleSlider.getBoundingClientRect();
+      const ratio = 1 - Math.max(0, Math.min(1, (clientY - rect.top) / rect.height));
+      plane.throttle = ratio;
+      throttleFill.style.height = (ratio * 100) + '%';
+    }
+
+    let cameraMode = 0;
+
+    function resetAircraft() {
+      const ap = airports.length > 0 ? airports[0] : null;
+      if (ap) {
+        aircraft.position.set(ap.center.x, ap.center.y + 3, ap.center.z + 100);
+      } else {
+        aircraft.position.set(0, 400, 400);
+      }
+      aircraft.rotation.set(0, 0, 0);
+      plane.speed = 0;
+      plane.throttle = 0.5;
+      plane.pitch = 0; plane.roll = 0; plane.yaw = 0;
+      plane.pitchRate = 0; plane.rollRate = 0; plane.yawRate = 0;
+      plane.flaps = 0; plane.gearDown = true; plane.afterburner = false;
+      plane.brake = true;
+      throttleFill.style.height = '50%';
+    }
+
+    // ==================== 物理更新 ====================
+    function updatePhysics(dt) {
+      if (dt > 0.1) dt = 0.1;
+      
+      // 🔥 滚转：A=左滚(正)，D=右滚(负)
+      // 🔥 偏航：Q=左偏(负)，E=右偏(正) - 使用yaw直接控制
+      const ip = (keys['w'] || keys['arrowup'] ? 1 : 0) - (keys['s'] || keys['arrowdown'] ? 1 : 0);
+      const ir = (keys['a'] || keys['arrowleft'] ? 1 : 0) - (keys['d'] || keys['arrowright'] ? 1 : 0);
+      const iy = (keys['e'] ? 1 : 0) - (keys['q'] ? 1 : 0);
+      
+      let joyPitch = 0, joyRoll = 0;
+      if (joystick.active) { joyPitch = -joystick.dy; joyRoll = joystick.dx; }
+      
+      const finalPitch = ip !== 0 ? ip : joyPitch;
+      const finalRoll = ir !== 0 ? ir : joyRoll;
+      
+      if (keys['shift']) plane.throttle = Math.min(1, plane.throttle + 0.4 * dt);
+      if (keys['control']) plane.throttle = Math.max(0, plane.throttle - 0.4 * dt);
+      plane.afterburner = keys[' '] || keys['space'] || false;
+      
+      const acs = 2.5;
+      
+      // 俯仰
+      plane.pitchRate += finalPitch * 1.8 * dt * 3;
+      plane.pitchRate -= plane.pitch * acs * dt;
+      plane.pitchRate *= Math.pow(0.02, dt);
+      plane.pitch += plane.pitchRate * dt;
+      plane.pitch = Math.max(-0.75, Math.min(0.75, plane.pitch));
+      
+      // 滚转
+      plane.rollRate += finalRoll * 2.5 * dt * 3;
+      plane.rollRate -= plane.roll * acs * dt;
+      plane.rollRate *= Math.pow(0.02, dt);
+      plane.roll += plane.rollRate * dt;
+      plane.roll = Math.max(-1.3, Math.min(1.3, plane.roll));
+      
+      // 🔥 偏航：直接使用iy，不再依赖roll
+      plane.yawRate += iy * 2.0 * dt * 2;
+      plane.yawRate -= plane.yawRate * 0.5 * dt; // 偏航阻尼
+      plane.yawRate *= Math.pow(0.03, dt);
+      plane.yaw += plane.yawRate * dt;
+      
+      // 推力
+      let thrust = plane.throttle * 180;
+      if (plane.afterburner) thrust += 140;
+      
+      const gh = getTerrainHeight(aircraft.position.x, aircraft.position.z);
+      const isOnGround = aircraft.position.y <= gh + 3.0;
+      
+      // 阻力
+      const baseDragCoeff = 0.014;
+      const flapsDrag = plane.flaps * 0.007;
+      const gearDrag = plane.gearDown ? 0.025 : 0.0;
+      const totalDragCoeff = baseDragCoeff + flapsDrag + gearDrag;
+      const airDrag = totalDragCoeff * plane.speed * plane.speed * 0.01;
+      
+      // 刹车
+      let brakeForce = 0;
+      if (plane.brake && isOnGround && plane.speed > 3) {
+        brakeForce = 70 * Math.min(1.0, plane.speed / 250);
+        if (plane.flaps > 0) brakeForce *= (1 + plane.flaps * 0.25);
+      }
+      
+      // 地面摩擦
+      let groundFriction = 0;
+      if (isOnGround) {
+        groundFriction = 6;
+        if (plane.gearDown) groundFriction += 10;
+        if (!plane.gearDown) groundFriction += 50;
+      }
+      
+      const netForce = thrust - airDrag - brakeForce - groundFriction;
+      plane.speed += netForce * dt * 0.35;
+      if (plane.speed < 0) plane.speed = 0;
+      plane.speed = Math.min(650, plane.speed);
+      if (plane.speed < 1 && isOnGround && !plane.brake && thrust < 5) plane.speed = 0;
+      
+      // 更新旋转
+      aircraft.rotation.order = 'YXZ';
+      aircraft.rotation.x = plane.pitch;
+      aircraft.rotation.z = -plane.roll;
+      aircraft.rotation.y = plane.yaw;
+      
+      // 移动
+      const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(aircraft.quaternion);
+      const sms = plane.speed * 0.51444;
+      aircraft.position.x += fwd.x * sms * dt;
+      aircraft.position.y += fwd.y * sms * dt;
+      aircraft.position.z += fwd.z * sms * dt;
+      
+      // 低速升力补偿（襟翼效果降低）
+      const baseLiftDeficit = plane.speed < 130 ? (130 - plane.speed) / 130 * 8 : 0;
+      const flapsLiftBonus = plane.flaps * 1.2;
+      const effectiveLiftDeficit = Math.max(0, baseLiftDeficit - flapsLiftBonus);
+      if (plane.speed < 130) {
+        aircraft.position.y -= effectiveLiftDeficit * dt;
+      }
+      
+      // 地面碰撞
+      const terrainHeight = getTerrainHeight(aircraft.position.x, aircraft.position.z);
+      if (aircraft.position.y < terrainHeight + 2.5) {
+        aircraft.position.y = terrainHeight + 2.5;
+        if (plane.speed > 200 && !isOnGround) plane.speed *= 0.5;
+      }
+      
+      const half = worldSize / 2 - 50;
+      aircraft.position.x = Math.max(-half, Math.min(half, aircraft.position.x));
+      aircraft.position.z = Math.max(-half, Math.min(half, aircraft.position.z));
+      
+      gearGroup.visible = plane.gearDown;
+    }
+
+    // ==================== 雷达 ====================
+    function drawRadar() {
+      const canvas = document.getElementById('radar-canvas');
+      const ctx = canvas.getContext('2d');
+      const size = canvas.parentElement.clientWidth;
+      canvas.width = size;
+      canvas.height = size;
+      const cx = size / 2, cy = size / 2, radius = size / 2 - 6;
+      
+      ctx.clearRect(0, 0, size, size);
+      
+      ctx.strokeStyle = 'rgba(0, 255, 136, 0.25)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      for (let r = 0.25; r <= 1; r += 0.25) {
+        ctx.strokeStyle = 'rgba(0, 255, 136, 0.12)';
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius * r, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      
+      const scanAngle = Date.now() * 0.003;
+      ctx.strokeStyle = 'rgba(0, 255, 136, 0.3)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(scanAngle) * radius, cy + Math.sin(scanAngle) * radius);
+      ctx.stroke();
+      
+      const playerPos = aircraft.position;
+      const radarRange = 4000;
+      for (const ap of airports) {
+        const relPos = ap.center.clone().sub(playerPos);
+        const dist = relPos.length();
+        if (dist > radarRange) continue;
+        const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(aircraft.quaternion);
+        const right = new THREE.Vector3(1, 0, 0).applyQuaternion(aircraft.quaternion);
+        const fwdDist = relPos.dot(forward);
+        const rightDist = relPos.dot(right);
+        const rx = cx + (rightDist / radarRange) * radius;
+        const ry = cy - (fwdDist / radarRange) * radius;
+        if ((rx-cx)*(rx-cx) + (ry-cy)*(ry-cy) < radius*radius) {
+          ctx.fillStyle = '#44aaff';
+          ctx.shadowColor = '#44aaff';
+          ctx.shadowBlur = 6;
+          ctx.beginPath();
+          ctx.arc(rx, ry, 3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+      }
+    }
+
+    function updateHUD() {
+      const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(aircraft.quaternion);
+      const hdg = ((Math.atan2(fwd.x, fwd.z) * 180 / Math.PI) + 360) % 360;
+      const gh = getTerrainHeight(aircraft.position.x, aircraft.position.z);
+      const isOnGround = aircraft.position.y <= gh + 3.0;
+      
+      document.getElementById('speed').textContent = Math.round(plane.speed);
+      document.getElementById('alt').textContent = Math.round(aircraft.position.y);
+      document.getElementById('hdg').textContent = Math.round(hdg).toString().padStart(3, '0');
+      document.getElementById('vs').textContent = Math.round(fwd.y * plane.speed * 0.51444 * 196.85);
+      document.getElementById('thr').textContent = Math.round(plane.throttle * 100);
+      document.getElementById('brake-status').textContent = plane.brake ? (isOnGround ? '🛑刹' : '⚠无效') : '松';
+      document.getElementById('brake-status').style.color = plane.brake ? (isOnGround ? '#ff4444' : '#ffaa00') : '#ffffff';
+      document.getElementById('gforce').textContent = (1 + Math.abs(plane.rollRate) * 3).toFixed(1);
+      document.getElementById('flaps').textContent = plane.flaps === 0 ? '收' : (plane.flaps === 1 ? '1档' : '2档');
+      document.getElementById('gear').textContent = plane.gearDown ? '放' : '收';
+      
+      drawRadar();
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = Math.min(0.1, 0.016);
+      updatePhysics(dt);
+      
+      const pp = aircraft.position.clone();
+      const fwd = new THREE.Vector3(0, 0, 1).applyQuaternion(aircraft.quaternion);
+      if (cameraMode === 0) {
+        const off = fwd.clone().multiplyScalar(-45);
+        off.y += 18;
+        camera.position.lerp(pp.clone().add(off), 0.06);
+        camera.lookAt(pp.clone().add(fwd.clone().multiplyScalar(35)));
+      } else if (cameraMode === 1) {
+        camera.position.copy(pp.clone().add(fwd.clone().multiplyScalar(5)).add(new THREE.Vector3(0, 2.5, 0)));
+        camera.lookAt(pp.clone().add(fwd.clone().multiplyScalar(100)));
+      } else {
+        camera.position.lerp(pp.clone().add(new THREE.Vector3(300, 200, 300)), 0.03);
+        camera.lookAt(pp);
+      }
+      
+      sun.position.copy(pp).add(new THREE.Vector3(600, 1000, 500));
+      
+      const time = Date.now() * 0.001;
+      for (const ap of airports) {
+        for (const l of ap.lights) {
+          l.material.color.setHex(Math.sin(time * 4 + ap.lights.indexOf(l)) > 0 ? 0xff4400 : 0x442200);
+        }
+      }
+      
+      updateHUD();
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    aircraft.rotation.y = -0.15;
+    plane.yaw = -0.15;
+    animate();
+    
+    console.log('✈️ Turbo Flight Simulator v7.3');
+    console.log('✅ Q=左偏航 E=右偏航 | A=左滚转 D=右滚转');
+    console.log('✅ 地形自然，无人工压低 | 机场在平地上');
+  </script>
+</body>
+</html>
