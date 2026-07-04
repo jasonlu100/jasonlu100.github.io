@@ -1,470 +1,328 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>陆骏兮 - 个人主页</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>🎮 游戏站点 · 简洁主页</title>
     <style>
-        /* 主页特有样式 */
-        .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 6rem 0;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
         }
 
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: float 20s linear infinite;
-        }
-
-        @keyframes float {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .avatar {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 4px solid white;
-            margin: 0 auto 2rem;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
-
-        .avatar-placeholder {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, #667eea, #764ba2);
+        body {
+            background: linear-gradient(145deg, #f7f9fc 0%, #e9edf2 100%);
+            min-height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
-            font-size: 3.5rem;
-            color: white;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        .hero .tagline {
-            font-size: 1.25rem;
-            opacity: 0.9;
-            margin-bottom: 2rem;
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin-top: 2rem;
-        }
-
-        /* 技能部分 */
-        .skills-section {
-            padding: 4rem 0;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .section-title h2 {
-            font-size: 2rem;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .skills-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .skill-card {
-            background: white;
-            border-radius: 12px;
-            padding: 2rem;
-            box-shadow: var(--card-shadow);
-            transition: var(--transition);
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .skill-card:hover {
-            transform: translateX(10px);
-        }
-
-        .skill-card h3 {
-            display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-        }
-
-        .skill-card i {
-            font-size: 1.5rem;
-        }
-
-        .skill-level {
-            height: 8px;
-            background: #e2e8f0;
-            border-radius: 4px;
-            margin-top: 1rem;
-            overflow: hidden;
-        }
-
-        .skill-progress {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            border-radius: 4px;
-        }
-
-        /* 特性部分 */
-        .features-section {
-            padding: 4rem 0;
-            background: white;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-        }
-
-        .feature-card {
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .feature-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            color: white;
-            font-size: 2rem;
-        }
-
-        /* 最新项目预览 */
-        .projects-preview {
-            padding: 4rem 0;
-        }
-
-        .projects-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-        }
-
-        .project-card {
-            position: relative;
-            overflow: hidden;
-            border-radius: 12px;
-            height: 300px;
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-        }
-
-        .project-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.95);
             padding: 1.5rem;
-            transform: translateY(100%);
-            transition: var(--transition);
         }
 
-        .project-card:hover .project-overlay {
-            transform: translateY(0);
+        .game-hub {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 3rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 24px rgba(0, 20, 40, 0.06);
+            padding: 2.5rem 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: all 0.2s ease;
         }
 
-        .project-title {
-            font-size: 1.25rem;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        /* 联系部分 */
-        .contact-section {
-            padding: 4rem 0;
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            text-align: center;
-        }
-
-        .social-links {
+        h1 {
+            font-size: 2.6rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #0b1a2b;
             display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 2rem;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
         }
 
-        .social-link {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--primary-color);
-            color: white;
+        .subhead {
+            font-size: 1rem;
+            color: #4a5b6e;
+            border-left: 3px solid #7b8c9e;
+            padding-left: 1rem;
+            margin-bottom: 2.25rem;
+            font-weight: 400;
+            opacity: 0.8;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .add-hint {
+            background: #dce3ec;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            color: #1f2a3a;
+            letter-spacing: 0.3px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .add-hint span {
+            font-size: 1.1rem;
+        }
+
+        /* 游戏卡片列表 — 干净、模块化 */
+        .game-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .game-item {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            padding: 1rem 1.8rem;
+            border-radius: 60px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0,0,0,0.03);
+            transition: all 0.15s;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        .game-item:hover {
+            background: #ffffff;
+            box-shadow: 0 8px 18px rgba(0, 20, 40, 0.08);
+            border-color: #cbd8e6;
+            transform: scale(1.01);
+        }
+
+        .game-info {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 0.75rem 1.2rem;
+        }
+
+        .game-name {
+            font-weight: 600;
+            font-size: 1.25rem;
+            color: #0b1a2b;
+            letter-spacing: -0.01em;
+        }
+
+        /* 网址样式 — 普通文本，无跳转，无下划线 */
+        .game-url-text {
+            font-size: 0.95rem;
+            color: #2b4c73;
+            background: #f0f5fe;
+            padding: 0.2rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid #d4e0f0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            word-break: break-all;
+            max-width: 280px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            /* 完全移除链接样式 */
+            text-decoration: none;
+            cursor: default;
+            pointer-events: none;
+            user-select: text;
+        }
+
+        /* 移除所有交互效果，保持纯文本 */
+        .game-url-text:hover {
+            background: #f0f5fe;
+            border-color: #d4e0f0;
+            color: #2b4c73;
+            box-shadow: none;
+        }
+
+        /* 空状态 & 添加指引 (仅视觉提示) */
+        .add-instruction {
+            margin-top: 2.8rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(220, 232, 245, 0.4);
+            border-radius: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-decoration: none;
-            font-size: 1.25rem;
-            transition: var(--transition);
+            gap: 0.5rem 1.2rem;
+            flex-wrap: wrap;
+            border: 1px dashed #b3c9df;
+            color: #1f3e5c;
+            font-size: 0.95rem;
         }
 
-        .social-link:hover {
-            transform: translateY(-5px);
-            background: var(--secondary-color);
+        .add-instruction code {
+            background: #e3ebf5;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            border: 1px solid #bccfe0;
+            color: #0e2b44;
+            font-weight: 500;
+        }
+
+        .add-instruction .highlight {
+            background: #d7e2f0;
+            padding: 0.1rem 0.7rem;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+
+        /* 响应式 */
+        @media (max-width: 700px) {
+            .game-hub {
+                padding: 1.8rem 1.2rem;
+                border-radius: 2rem;
+            }
+            h1 {
+                font-size: 2.0rem;
+            }
+            .game-item {
+                padding: 0.9rem 1.2rem;
+                border-radius: 40px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.6rem;
+            }
+            .game-info {
+                flex-wrap: wrap;
+                gap: 0.4rem 0.8rem;
+            }
+            .game-url-text {
+                max-width: 100%;
+                white-space: normal;
+                justify-content: center;
+                padding: 0.3rem 1rem;
+            }
+            .subhead {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+                border-left: none;
+                padding-left: 0;
+            }
+            .add-hint {
+                align-self: flex-start;
+            }
+            .add-instruction {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1rem 1.2rem;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .game-name {
+                font-size: 1.1rem;
+            }
+            .game-url-text {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* 模拟“添加新游戏”的视觉锚点 — 无交互 */
+        .mock-add {
+            background: transparent;
+            border: 2px dashed #b7cbdf;
+            color: #3e5f7e;
+            justify-content: center;
+            opacity: 0.6;
+            pointer-events: none;
+            padding: 0.5rem 1.5rem;
+        }
+
+        .mock-add .game-name {
+            color: #3f5f7e;
+            font-weight: 400;
+        }
+
+        .mock-add .game-url-text {
+            background: #eef3fa;
+            border-color: #cbdae9;
+            color: #3d5f82;
+        }
+        .mock-add:hover {
+            transform: none;
+            border-color: #b7cbdf;
+            background: transparent;
         }
     </style>
 </head>
 <body>
-    <!-- 导航栏 -->
-    <nav class="navbar">
-        <div class="container nav-content">
-            <a href="index.html" class="logo">
-                <i class="fas fa-code"></i>
-                陆骏兮
-            </a>
-            <ul class="nav-links">
-                <li><a href="index.html" class="active"><i class="fas fa-home"></i> 主页</a></li>
-                <li><a href="projects.html"><i class="fas fa-project-diagram"></i> 项目</a></li>
-                <li><a href="about.html"><i class="fas fa-user"></i> 介绍</a></li>
-            </ul>
+<div class="game-hub">
+    <header>
+        <h1>🕹️ 游戏驿站</h1>
+        <div class="subhead">
+            <span>🎯 所有游戏 · 直达网址（纯文本）</span>
+            <span class="add-hint"><span>➕</span> 添加新游戏只需复制一行</span>
         </div>
-    </nav>
+    </header>
 
-    <!-- 英雄区域 -->
-    <section class="hero">
-        <div class="container hero-content">
-            <div class="avatar">
-                <div class="avatar-placeholder">
-                    <i class="fas fa-user"></i>
-                </div>
+    <!-- 游戏列表 - 完全静态，方便复制添加 -->
+    <div class="game-list">
+        <!-- 游戏 1 -->
+        <div class="game-item">
+            <div class="game-info">
+                <span class="game-name">飞机游戏1</span>
             </div>
-            <h1>陆骏兮</h1>
-            <p class="tagline">python开发者 | 技术爱好者</p>
-            <p>专注于创造优秀的数字体验，热爱学习新技术</p>
-            <div class="hero-buttons">
-                <a href="projects.html" class="btn">
-                    <i class="fas fa-eye"></i> 查看项目
-                </a>
-                <a href="about.html" class="btn btn-secondary">
-                    <i class="fas fa-info-circle"></i> 了解更多
-                </a>
-            </div>
+            <span class="game-url-text">/game/airplanegame.html</span>
         </div>
-    </section>
 
-    <!-- 技能部分 -->
-    <section class="skills-section">
-        <div class="container">
-            <div class="section-title">
-                <h2>技术栈</h2>
-                <p>我的核心技能和专业领域</p>
+        <!-- 游戏 2 -->
+        <div class="game-item">
+            <div class="game-info">
+                <span class="game-name">开车游戏1</span>
             </div>
-            <div class="skills-grid">
-                <div class="skill-card">
-                    <h3><i class="fab fa-html5"></i> python全栈技术开发</h3>
-                    <p>python的所有功能的库</p>
-                    <div class="skill-level">
-                        <div class="skill-progress" style="width: 90%"></div>
-                    </div>
-                </div>
-                <div class="skill-card">
-                    <h3><i class="fas fa-server"></i> 我也在尝试学习其它语言</h3>
-                    <p>c++, unity</p>
-                    <div class="skill-level">
-                        <div class="skill-progress" style="width: 85%"></div>
-                    </div>
-                </div>
-                <div class="skill-card">
-                    <h3><i class="fab fa-git-alt"></i> 开发工具</h3>
-                    <p>Git, GitHub, Docker, VS Code, 敏捷开发</p>
-                    <div class="skill-level">
-                        <div class="skill-progress" style="width: 95%"></div>
-                    </div>
-                </div>
-            </div>
+            <span class="game-url-text">/game/cargame.html</span>
         </div>
-    </section>
 
-    <!-- 特性部分 -->
-    <section class="features-section">
-        <div class="container">
-            <div class="section-title">
-                <h2>我能做什么</h2>
-                <p>为您提供全方位的技术支持</p>
+        <!-- 游戏 3 -->
+        <div class="game-item">
+            <div class="game-info">
+                <span class="game-name">我的世界（仅电脑端）</span>
             </div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-laptop-code"></i>
-                    </div>
-                    <h3>python开发</h3>
-                    <p>构建出独一无二的应用（设计师不行除外😊）</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <h3>移动端适配</h3>
-                    <p>确保在所有设备上都有最佳体验</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-rocket"></i>
-                    </div>
-                    <h3>性能优化</h3>
-                    <p>提升应用加载速度和用户体验</p>
-                </div>
-            </div>
+            <span class="game-url-text">/game/minecraft.html</span>
         </div>
-    </section>
 
-    <!-- 最新项目预览 -->
-    <section class="projects-preview">
-        <div class="container">
-            <div class="section-title">
-                <h2>精选项目</h2>
-                <p>探索我的最新作品</p>
+        <!-- 游戏 4 -->
+        <div class="game-item">
+            <div class="game-info">
+                <span class="game-name">飞机游戏2</span>
             </div>
-            <div class="projects-grid">
-                <div class="project-card">
-                    <div class="project-overlay">
-                        <h3 class="project-title">个人博客系统</h3>
-                        <p>基于Node.js的全功能博客平台</p>
-                        <a href="projects.html#blog" class="btn" style="margin-top: 1rem;">查看详情</a>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-overlay">
-                        <h3 class="project-title">电商平台</h3>
-                        <p>React + Node.js构建的在线商店</p>
-                        <a href="projects.html#ecommerce" class="btn" style="margin-top: 1rem;">查看详情</a>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-overlay">
-                        <h3 class="project-title">任务管理应用</h3>
-                        <p>Vue.js + Firebase实时协作应用</p>
-                        <a href="projects.html#taskapp" class="btn" style="margin-top: 1rem;">查看详情</a>
-                    </div>
-                </div>
-            </div>
-            <div style="text-align: center; margin-top: 3rem;">
-                <a href="projects.html" class="btn">
-                    <i class="fas fa-arrow-right"></i> 查看所有项目
-                </a>
-            </div>
+            <span class="game-url-text">/game/beta/tfs2.html</span>
         </div>
-    </section>
 
-    <!-- 联系部分 -->
-    <section class="contact-section">
-        <div class="container">
-            <div class="section-title">
-                <h2>联系我</h2>
-                <p>有项目想法？让我们一起实现它！</p>
-            </div>
-            <div class="social-links">
-                <a href="https://github.com/jasonlu100" class="social-link" target="_blank">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="mailto:jasonlu100@163.com" class="social-link">
-                    <i class="fas fa-envelope"></i>
-                </a>
-                <a href="https://jasonlu100.github.io" class="social-link">
-                    <i class="fas fa-globe"></i>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- 页脚 -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Jason Lu</h3>
-                    <p>专注于创造优秀的数字体验，热爱学习新技术</p>
-                </div>
-                <div class="footer-section">
-                    <h3>快速链接</h3>
-                    <ul class="footer-links">
-                        <li><a href="index.html">主页</a></li>
-                        <li><a href="projects.html">项目</a></li>
-                        <li><a href="about.html">关于我</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>联系信息</h3>
-                    <ul class="footer-links">
-                        <li><i class="fas fa-envelope"></i> jasonlu100@163.com</li>
-                        <li><i class="fab fa-github"></i> github.com/jasonlu100</li>
-                        <li><i class="fas fa-globe"></i> jasonlu100.github.io</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="copyright">
-                <p>&copy; <span id="current-year"></span> 陆骏兮 保留所有权利.</p>
-                <p>由 GitHub Pages 提供支持</p>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        // 更新年份
-        document.getElementById('current-year').textContent = new Date().getFullYear();
         
-        // 导航栏滚动效果
-        window.addEventListener('scroll', function() {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 100) {
-                navbar.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-            } else {
-                navbar.style.boxShadow = 'none';
-            }
-        });
-        
-        // 技能卡片动画
-        const skillCards = document.querySelectorAll('.skill-card');
-        skillCards.forEach(card => {
-            card.addEventListener('mouseenter', () => {
-                card.style.transform = 'translateX(10px)';
-            });
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = 'translateX(0)';
-            });
-        });
-    </script>
+
+        <!-- ‼️ 新游戏占位 — 模仿添加一行，直接复制这个结构即可 -->
+        <!-- 
+            👇 复制以下整块，粘贴到上面最后一个 .game-item 后面，修改名称和网址即可。
+            <div class="game-item">
+                <div class="game-info">
+                    <span class="game-name">🎮 新游戏名称</span>
+                </div>
+                <span class="game-url-text">你的游戏网址.com</span>
+            </div>
+        -->
+    </div>
+
+    
+    
+    
+</div>
 </body>
 </html>
-
